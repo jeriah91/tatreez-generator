@@ -1,0 +1,967 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Tatreez Module Generator</title>
+<style>
+:root{
+  --green:#00683c; --white:#f6eee9; --black:#231f20; --red:#c82026;
+  --ink:#231f20; --paper:#f6eee9; --line:#d9cfc8; --muted:#6f6763; --panel:#fbf7f4;
+}
+*{box-sizing:border-box}
+html,body{margin:0;height:100%}
+body{font:14px/1.45 ui-sans-serif,system-ui,-apple-system,"Segoe UI",Roboto,sans-serif;color:var(--ink);background:var(--paper);display:flex;flex-direction:column}
+header{display:flex;align-items:center;gap:18px;padding:12px 20px;border-bottom:1px solid var(--line);background:var(--paper)}
+header h1{font:600 16px/1 ui-serif,Georgia,serif;letter-spacing:.01em;margin:0;display:flex;align-items:center;gap:10px}
+.mark{display:inline-grid;grid-template-columns:repeat(2,8px);gap:2px}
+.mark i{width:8px;height:8px;display:block}
+nav.tabs{display:flex;gap:4px;margin-left:auto}
+nav.tabs button{border:1px solid var(--line);background:transparent;padding:7px 14px;border-radius:999px;cursor:pointer;font:inherit;color:var(--ink)}
+nav.tabs button[aria-selected=true]{background:var(--ink);color:var(--paper);border-color:var(--ink)}
+main{flex:1;min-height:0;display:flex}
+.view{flex:1;min-height:0;display:none}
+.view.on{display:flex}
+aside{width:320px;flex:none;overflow:auto;border-right:1px solid var(--line);background:var(--panel);padding:16px 18px 28px}
+aside h2{font:600 11px/1 ui-sans-serif,system-ui;letter-spacing:.12em;text-transform:uppercase;color:var(--muted);margin:22px 0 10px}
+aside h2:first-child{margin-top:4px}
+.row{display:flex;gap:10px;align-items:center;margin:8px 0}
+.row label{flex:1}
+.row output{min-width:44px;text-align:right;font-variant-numeric:tabular-nums;color:var(--muted)}
+.pair{display:grid;grid-template-columns:1fr 1fr;gap:10px}
+.field{display:flex;flex-direction:column;gap:4px;font-size:12px;color:var(--muted)}
+input[type=number],select,input[type=text]{font:inherit;color:var(--ink);background:#fff;border:1px solid var(--line);border-radius:8px;padding:7px 9px;width:100%}
+input[type=range]{width:100%;accent-color:var(--ink)}
+.seg{display:flex;border:1px solid var(--line);border-radius:9px;overflow:hidden;background:#fff}
+.seg button{flex:1;border:0;background:transparent;padding:7px 4px;font:inherit;font-size:12px;cursor:pointer;color:var(--ink);border-right:1px solid var(--line)}
+.seg button:last-child{border-right:0}
+.seg button[aria-pressed=true]{background:var(--ink);color:var(--paper)}
+.stitches{display:grid;grid-template-columns:repeat(3,1fr);gap:6px}
+.stitches button{border:1px solid var(--line);background:#fff;border-radius:8px;padding:6px 2px 4px;cursor:pointer;font:inherit;font-size:11px;color:var(--ink);display:flex;flex-direction:column;align-items:center;gap:3px}
+.stitches button[aria-pressed=true]{outline:2px solid var(--ink);outline-offset:-1px}
+.stitches svg{width:30px;height:30px}
+.swatches{display:flex;gap:8px}
+.swatch{flex:1;border:1px solid var(--line);border-radius:8px;background:#fff;padding:6px;cursor:pointer;display:flex;flex-direction:column;align-items:center;gap:4px;font-size:11px;color:var(--ink)}
+.swatch i{width:100%;height:22px;border-radius:5px;display:block;border:1px solid rgba(0,0,0,.08)}
+.swatch[aria-pressed=false]{opacity:.35}
+.check{display:flex;gap:8px;align-items:center;margin:6px 0;font-size:13px}
+.btns{display:flex;gap:8px;margin-top:18px}
+.btn{flex:1;border:1px solid var(--ink);background:transparent;color:var(--ink);padding:10px;border-radius:10px;font:600 13px/1 inherit;cursor:pointer}
+.btn.primary{background:var(--ink);color:var(--paper)}
+.btn:active{transform:translateY(1px)}
+.hint{font-size:12px;color:var(--muted);margin:6px 0 0}
+.stage{flex:1;min-width:0;display:flex;flex-direction:column}
+.canvas{flex:1;min-height:0;display:flex;align-items:center;justify-content:center;padding:28px;overflow:auto;background:
+  repeating-linear-gradient(45deg,transparent 0 10px,rgba(35,31,32,.025) 10px 11px),var(--paper)}
+.canvas svg{max-width:100%;max-height:100%;box-shadow:0 1px 2px rgba(0,0,0,.08),0 14px 40px rgba(35,31,32,.14);background:#fff}
+.canvas svg g.mod{cursor:pointer}
+.canvas svg g.mod:hover{opacity:.92}
+.statusbar{display:flex;gap:22px;align-items:center;flex-wrap:wrap;padding:10px 20px;border-top:1px solid var(--line);font-size:12px;color:var(--muted);background:var(--panel)}
+.statusbar b{color:var(--ink);font-weight:600}
+.balance{display:flex;height:10px;width:220px;border-radius:3px;overflow:hidden;border:1px solid var(--line)}
+.balance i{display:block;height:100%}
+.legend{display:flex;gap:10px}
+.legend span{display:flex;align-items:center;gap:4px;font-variant-numeric:tabular-nums}
+.legend span i{width:9px;height:9px;border-radius:2px;display:inline-block;border:1px solid rgba(0,0,0,.15)}
+/* catalogue */
+.cat-side{width:280px}
+.cat-main{flex:1;overflow:auto;padding:22px 28px 60px}
+.cat-main h3{font:600 20px/1.2 ui-serif,Georgia,serif;margin:28px 0 4px}
+.cat-main h3:first-child{margin-top:0}
+.cat-main h4{font:600 12px/1 ui-sans-serif,system-ui;letter-spacing:.08em;text-transform:uppercase;color:var(--muted);margin:16px 0 10px}
+.grid-cards{display:grid;grid-template-columns:repeat(auto-fill,minmax(170px,1fr));gap:14px}
+.card{background:#fff;border:1px solid var(--line);border-radius:12px;padding:10px;display:flex;flex-direction:column;gap:6px;position:relative}
+.card.off{opacity:.38}
+.card .thumb{display:flex;justify-content:center;align-items:center;height:150px}
+.card .thumb svg{height:100%;width:auto;border-radius:4px}
+.card .nm{font-weight:600;font-size:13px}
+.card .ar{font-style:italic;color:var(--muted);font-size:12px}
+.card .meta{display:flex;flex-wrap:wrap;gap:4px}
+.tag{font-size:10.5px;padding:2px 7px;border-radius:999px;background:var(--paper);border:1px solid var(--line);color:var(--ink)}
+.card .note{font-size:11.5px;color:var(--muted)}
+.card a{font-size:11px;color:var(--green)}
+.card label.use{align-self:flex-end;margin:-2px -2px -4px;display:flex;gap:4px;align-items:center;font-size:11px;color:var(--muted);background:#fff;padding:2px 4px;border-radius:6px}
+.filterlist{display:flex;flex-direction:column;gap:2px;max-height:none}
+.filterlist label{display:flex;gap:8px;align-items:center;font-size:13px;padding:3px 0}
+.filterlist label small{margin-left:auto;color:var(--muted);font-variant-numeric:tabular-nums}
+.linkbtn{background:none;border:0;padding:0;color:var(--muted);font:inherit;font-size:12px;cursor:pointer;text-decoration:underline}
+.about{max-width:760px}
+.about p{margin:0 0 10px}
+@media (max-width:820px){main{flex-direction:column}.view.on{flex-direction:column}aside{width:auto;border-right:0;border-bottom:1px solid var(--line);max-height:46vh}.canvas{min-height:50vh}}
+</style>
+</head>
+<body>
+<header>
+  <h1><span class="mark"><i style="background:var(--green)"></i><i style="background:var(--red)"></i><i style="background:var(--black)"></i><i style="background:var(--white);outline:1px solid var(--line)"></i></span>Tatreez Module Generator</h1>
+  <nav class="tabs" role="tablist">
+    <button role="tab" aria-selected="true" data-view="gen">Generator</button>
+    <button role="tab" aria-selected="false" data-view="cat">Pattern catalogue</button>
+    <button role="tab" aria-selected="false" data-view="src">Sources &amp; inventory</button>
+  </nav>
+</header>
+<main>
+<!-- ================= GENERATOR ================= -->
+<section class="view on" id="view-gen">
+  <aside>
+    <h2>Composition</h2>
+    <div class="pair">
+      <div class="field">Columns (modules)<input type="number" id="cols" min="1" max="24" value="4"></div>
+      <div class="field">Rows (modules)<input type="number" id="rows" min="1" max="24" value="3"></div>
+    </div>
+    <div class="field" style="margin-top:10px">Format preset
+      <select id="preset">
+        <option value="">Custom</option>
+        <option value="1,1">Single module</option>
+        <option value="3,3">Square · 3 × 3</option>
+        <option value="5,5">Square · 5 × 5</option>
+        <option value="4,5">Portrait 4:5 · 4 × 5</option>
+        <option value="5,7">Poster ≈ A-series · 5 × 7</option>
+        <option value="3,4">Portrait 3:4 · 3 × 4</option>
+        <option value="7,4">Landscape ≈ 16:9 · 7 × 4</option>
+        <option value="8,2">Banner · 8 × 2</option>
+        <option value="2,8">Column banner · 2 × 8</option>
+      </select>
+    </div>
+
+    <h2>Border</h2>
+    <label class="check"><input type="checkbox" id="borderOn"> Add border modules</label>
+    <div id="borderOpts" style="display:none">
+      <div class="field">Sides
+        <div class="seg" id="borderSides">
+          <button data-v="top" aria-pressed="true">Top</button>
+          <button data-v="right" aria-pressed="true">Right</button>
+          <button data-v="bottom" aria-pressed="true">Bottom</button>
+          <button data-v="left" aria-pressed="true">Left</button>
+        </div>
+        <div style="display:flex;gap:14px;margin-top:6px">
+          <button class="linkbtn" data-sides="top,right,bottom,left">All four</button>
+          <button class="linkbtn" data-sides="top,bottom">Top + bottom</button>
+          <button class="linkbtn" data-sides="left,right">Left + right</button>
+          <button class="linkbtn" data-sides="bottom">Hem only</button>
+        </div>
+      </div>
+      <div class="field" style="margin-top:10px">Border pattern
+        <select id="borderPattern"><option value="auto">Auto (changes with seed)</option></select>
+      </div>
+      <div class="field" style="margin-top:8px">Corner motif
+        <select id="cornerMotif"><option value="auto">Auto (four-way symmetric)</option></select>
+      </div>
+      <p class="hint">Border modules frame the field one module deep and add to the composition’s size. Each side is split into square and double modules in a mirrored sequence; bands repeat from the centre outwards. Plant and tree bands stay upright on every side; geometric bands turn with the edge. Modules in mirror-image positions share a colourway, so the frame stays symmetric while all four colours stay balanced. Click a border module to change the band; Shift-click to recolour the frame.</p>
+    </div>
+
+    <h2>Module mix</h2>
+    <div class="row"><label for="share">Double modules (area)</label><output id="shareOut">50%</output></div>
+    <input type="range" id="share" min="0" max="100" step="5" value="50">
+    <div class="field" style="margin-top:10px">Double orientation
+      <div class="seg" id="orient">
+        <button data-v="tall" aria-pressed="false">Tall</button>
+        <button data-v="mixed" aria-pressed="true">Mixed</button>
+        <button data-v="wide" aria-pressed="false">Wide</button>
+      </div>
+    </div>
+    <div class="field" style="margin-top:10px">Double-module content
+      <select id="doubleMode">
+        <option value="mix">Mix: tall motifs and repeated squares</option>
+        <option value="tall">Tall motifs where possible</option>
+        <option value="pair">Repeated squares only</option>
+      </select>
+    </div>
+    <p class="hint">Repeated motifs inside a tall or wide module sit 2 stitches apart — the same as the gutter between two modules — and are joined by a centre stem in the accent thread.</p>
+
+    <label class="check"><input type="checkbox" id="stagger" checked> Brick stagger (avoid aligned doubles)</label>
+
+    <h2>Stitch</h2>
+    <div class="stitches" id="stitchPick"></div>
+
+    <h2>Colour</h2>
+    <div class="swatches" id="palettePick"></div>
+    <label class="check"><input type="checkbox" id="accents" checked> Use accent colours inside motifs</label>
+    <p class="hint">Every stitch meets at least 3:1 contrast against its background (WCAG 1.4.11), so stitches are always off-white on a colour, or a colour on off-white. Red/green, red/black and green/black are never layered. In densely stitched motifs, accent areas are left open rather than layered inside the field. Colours are balanced by total area across the composition, and touching modules never share a background.</p>
+
+    <h2>Patterns</h2>
+    <div class="field">Region
+      <select id="regionFilter"><option value="">All regions</option></select>
+    </div>
+    <div class="field" style="margin-top:8px">Type
+      <select id="typeFilter"><option value="">All types</option></select>
+    </div>
+    <label class="check"><input type="checkbox" id="rotate" checked> Paired birds and directional motifs face each other</label>
+    <p class="hint"><b>Orientation:</b> every motif stays upright as it is stitched; cypress trees, plants, birds and vessels are never rotated or turned upside down. Motifs may only be mirrored left↔right.<br><b>Fill:</b> every pattern spans its whole stitch field, touching all four sides, so the only empty space is the module’s 1-stitch margin.<br><b>Symmetry:</b> every module is mirror-symmetric on at least one axis, colour included; motifs with no axis (birds, stepped corners) only appear as a mirrored facing pair. Tall and wide modules are always mirror-symmetric. Tall = a tall motif, or one upright motif repeated above itself. Wide = an upright motif and its mirror image facing each other.<br><b>Spacing:</b> repeats are separated by a 2-stitch gap, equal to the gutter between modules; border repeats are evenly spaced.<br><b>Connection:</b> the two repeats are joined by a stem along the centre line in the accent thread — 1 stitch wide inside each motif, 3 wide across the gap — stopping where it meets each motif.</p>
+    <p class="hint" id="poolInfo"></p>
+
+    <h2>Output</h2>
+    <div class="pair">
+      <div class="field">Output width<input type="number" id="outW" min="1" value="600"></div>
+      <div class="field">Unit
+        <select id="outUnit"><option value="mm">mm</option><option value="px">px</option><option value="in">in</option><option value="cm">cm</option></select>
+      </div>
+    </div>
+    <p class="hint" id="sizeInfo"></p>
+    <div class="field" style="margin-top:8px">Seed<input type="text" id="seed" value="nakba-1948"></div>
+
+    <div class="btns">
+      <button class="btn" id="shuffle">Shuffle</button>
+      <button class="btn primary" id="download">Download SVG</button>
+    </div>
+    <p class="hint" id="dlMsg" aria-live="polite" style="min-height:1em;color:var(--ink)"></p>
+    <p class="hint">Click a module to swap its motif · Shift-click to change its colourway.</p>
+  </aside>
+  <div class="stage">
+    <div class="canvas" id="canvas"></div>
+    <div class="statusbar" id="status"></div>
+  </div>
+</section>
+
+<!-- ================= CATALOGUE ================= -->
+<section class="view" id="view-cat">
+  <aside class="cat-side">
+    <h2>Group by</h2>
+    <div class="seg" id="groupBy">
+      <button data-v="region" aria-pressed="true">Region</button>
+      <button data-v="city" aria-pressed="false">City</button>
+      <button data-v="type" aria-pressed="false">Type</button>
+    </div>
+    <h2>Type</h2>
+    <div class="filterlist" id="catTypes"></div>
+    <h2>Size</h2>
+    <div class="filterlist" id="catSizes"></div>
+    <h2>Use in generator</h2>
+    <div style="display:flex;gap:14px"><button class="linkbtn" id="useAll">Select all shown</button><button class="linkbtn" id="useNone">Clear all shown</button></div>
+    <p class="hint">Unticked motifs are excluded from generation.</p>
+    <h2>About</h2>
+    <p class="hint" id="aboutText"></p>
+  </aside>
+  <div class="cat-main" id="catMain"></div>
+</section>
+<section class="view" id="view-src"><div class="cat-main about" id="srcMain" style="max-width:none"></div></section>
+</main>
+
+<script>
+/* ============================================================
+   DATA
+   ============================================================ */
+const MOTIFS = __MOTIFS__;
+const INVENTORY = __INVENTORY__;
+const BORDERS = __BORDERS__;
+const KAWAR_INV = __KAWAR_INV__;
+const STITCH_REST = __STITCH_REST__;
+
+
+const PALETTE = [
+  {key:'green', name:'Green',     hex:'#00683c'},
+  {key:'white', name:'Off-white', hex:'#f6eee9'},
+  {key:'black', name:'Black',     hex:'#231f20'},
+  {key:'red',   name:'Red',       hex:'#c82026'},
+];
+const MIN_CONTRAST = 3; // WCAG 2.x non-text contrast for graphical objects
+const CELL = 24;        // one stitch cell, in SVG user units (matches source artwork)
+const UNIT = 15;        // cells per module side: 1 margin + 13 stitches + 1 margin
+const INNER = 13;       // stitches across a module
+const TALL_INNER = 28;  // 13 + 2 + 13 stitches along the long side of a double module
+
+/* ============================================================
+   UTILITIES
+   ============================================================ */
+function hashStr(s){let h=1779033703^s.length;for(let i=0;i<s.length;i++){h=Math.imul(h^s.charCodeAt(i),3432918353);h=h<<13|h>>>19}return ()=>{h=Math.imul(h^h>>>16,2246822507);h=Math.imul(h^h>>>13,3266489909);return (h^=h>>>16)>>>0}}
+function rngFrom(seed){const g=hashStr(String(seed));let a=g(),b=g(),c=g(),d=g();return function(){a>>>=0;b>>>=0;c>>>=0;d>>>=0;let t=(a+b)|0;a=b^b>>>9;b=c+(c<<3)|0;c=(c<<21|c>>>11);d=d+1|0;t=t+d|0;c=c+t|0;return (t>>>0)/4294967296}}
+const f2 = n => (Math.round(n*100)/100).toString();
+const esc = s => String(s??'').replace(/[&<>"]/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;'}[c]));
+const slug = s => String(s).toLowerCase().replace(/[^a-z0-9]+/g,'-').replace(/^-|-$/g,'');
+function lum(hex){const v=[1,3,5].map(i=>parseInt(hex.substr(i,2),16)/255).map(c=>c<=.03928?c/12.92:Math.pow((c+.055)/1.055,2.4));return .2126*v[0]+.7152*v[1]+.0722*v[2]}
+function contrastRatio(a,b){const A=lum(a),B=lum(b);return (Math.max(A,B)+.05)/(Math.min(A,B)+.05)}
+
+/* grid helpers: grids are arrays of strings */
+const rot90  = g => { const h=g.length,w=g[0].length,o=[]; for(let x=0;x<w;x++){let r='';for(let y=h-1;y>=0;y--) r+=g[y][x]; o.push(r);} return o; };
+const flipH  = g => g.map(r=>[...r].reverse().join(''));
+const flipV  = g => [...g].reverse();
+function orientSquare(g,k){ let o=g; for(let i=0;i<k;i++) o=rot90(o); return o; }
+/* SYMMETRY RULE — double (tall / wide) modules always carry mirror-symmetric content.
+   Shape: every row must read the same reversed (stitch vs empty) about the module's long axis.
+   Colour: the left half is mirrored onto the right so colours are symmetric too. */
+const shapeSymLR = g => g.every(r=>{for(let i=0;i<r.length;i++){if((r[i]==='.')!==(r[r.length-1-i]==='.'))return false}return true});
+const mirrorColours = g => g.map(r=>{const n=r.length,h=n>>1;const L=r.slice(0,h);return L+(n%2?r[h]:'')+[...L].reverse().join('')});
+const isSymFull = g => g.every(r=>r===[...r].reverse().join(''));
+
+/* ============================================================
+   STITCH SHAPES  (each fills one 24×24 cell)
+   ============================================================ */
+function polyPath(pts){return 'M'+pts.map(p=>f2(p[0])+','+f2(p[1])).join('L')+'Z'}
+function crossPts(arm, half){ // plus shape rotated 45°, centred at 12,12
+  const c=12, a=arm, h=half;
+  const plus=[[-h,-a],[h,-a],[h,-h],[a,-h],[a,h],[h,h],[h,a],[-h,a],[-h,h],[-a,h],[-a,-h],[-h,-h]];
+  const s=Math.SQRT1_2;
+  return plus.map(([x,y])=>[c+(x-y)*s, c+(x+y)*s]);
+}
+const X_PTS = crossPts(15.2, 2.6);
+const STITCHES = {
+  round:   {name:'Tatreez X',  cover:.52, d:(x,y)=>'M'+f2(x+22.8)+','+f2(y+17.66)+STITCH_REST},
+  cross:   {name:'Thread X',   cover:.36, d:(x,y)=>polyPath(X_PTS.map(p=>[p[0]+x,p[1]+y]))},
+  square:  {name:'Square',     cover:.64, d:(x,y)=>`M${f2(x+4)},${f2(y+2)}h16a2 2 0 0 1 2 2v16a2 2 0 0 1-2 2h-16a2 2 0 0 1-2-2v-16a2 2 0 0 1 2-2z`},
+  diamond: {name:'Diamond',    cover:.5,  d:(x,y)=>`M${f2(x+12)},${f2(y)}L${f2(x+24)},${f2(y+12)}L${f2(x+12)},${f2(y+24)}L${f2(x)},${f2(y+12)}Z`},
+  dot:     {name:'Dot',        cover:.5,  d:(x,y)=>`M${f2(x+3)},${f2(y+12)}a9 9 0 1 0 18 0a9 9 0 1 0-18 0z`},
+  half:    {name:'Half stitch',cover:.3,  d:(x,y)=>`M${f2(x+1)},${f2(y+19.5)}L${f2(x+19.5)},${f2(y+1)}L${f2(x+23)},${f2(y+4.5)}L${f2(x+4.5)},${f2(y+23)}Z`},
+};
+
+/* ============================================================
+   STATE
+   ============================================================ */
+const S = {
+  cols:4, rows:3, share:50, orient:'mixed', doubleMode:'mix', stagger:true,
+  stitch:'round', palette:['green','white','black','red'], accents:true,
+  region:'', type:'', rotate:true, outW:600, outUnit:'mm', seed:'nakba-1948',
+  disabled:new Set(),
+  overrides:{}, // moduleIndex | 'border' -> {motifSalt, colourSalt}
+  border:{on:false, sides:{top:true,right:true,bottom:true,left:true}, pattern:'auto', corner:'auto'},
+};
+let LAST = null; // last generated composition
+
+/* ============================================================
+   1. TILING  — fill cols×rows with 1×1, 1×2 (tall) and 2×1 (wide) modules
+   ============================================================ */
+function tileOnce(cols, rows, share, orient, rng){
+  const occ = Array.from({length:rows},()=>Array(cols).fill(-1));
+  const mods=[];
+  const p2 = Math.min(.98, share/100 * 1.15); // probability of attempting a double at a free cell
+  for(let r=0;r<rows;r++) for(let c=0;c<cols;c++){
+    if(occ[r][c]>=0) continue;
+    const canT = orient!=='wide' && r+1<rows && occ[r+1][c]<0;
+    const canW = orient!=='tall' && c+1<cols && occ[r][c+1]<0;
+    let kind='S';
+    if((canT||canW) && rng()<p2){
+      if(canT&&canW) kind = rng()<.5?'T':'W'; else kind = canT?'T':'W';
+    }
+    const m={c,r,w:kind==='W'?2:1,h:kind==='T'?2:1,kind};
+    const id=mods.length; mods.push(m);
+    for(let y=r;y<r+m.h;y++) for(let x=c;x<c+m.w;x++) occ[y][x]=id;
+  }
+  return {mods,occ};
+}
+function tilingScore(t, cols, rows, share, stagger){
+  const total=cols*rows;
+  const dbl=t.mods.filter(m=>m.kind!=='S');
+  const area2=dbl.length*2/total;
+  let s = Math.abs(area2-share/100)*12;
+  if(stagger){
+    // aligned doubles: two talls side by side with same top, or two wides stacked with same left
+    for(const m of dbl){
+      if(m.kind==='T' && m.c+1<cols){const n=t.mods[t.occ[m.r][m.c+1]]; if(n.kind==='T'&&n.r===m.r) s+=.8;}
+      if(m.kind==='W' && m.r+1<rows){const n=t.mods[t.occ[m.r+1][m.c]]; if(n.kind==='W'&&n.c===m.c) s+=.8;}
+    }
+    // long straight seams spanning the whole composition read as a grid, not as bricks
+    for(let r=1;r<rows;r++){let cut=true;for(let c=0;c<cols;c++) if(t.occ[r][c]===t.occ[r-1][c]){cut=false;break} if(cut && dbl.length) s+=.15;}
+    for(let c=1;c<cols;c++){let cut=true;for(let r=0;r<rows;r++) if(t.occ[r][c]===t.occ[r][c-1]){cut=false;break} if(cut && dbl.length) s+=.15;}
+  }
+  // spread: doubles should be distributed across quadrants, not clumped
+  if(dbl.length>=4 && cols>1 && rows>1){
+    const q=[0,0,0,0]; dbl.forEach(m=>q[(m.c*2>=cols?1:0)+(m.r*2>=rows?2:0)]++);
+    const mean=dbl.length/4; s+= q.reduce((a,v)=>a+(v-mean)**2,0)/dbl.length*.6;
+  }
+  // mixed orientation should actually mix
+  if(S.orient==='mixed' && dbl.length>=3){
+    const t2=dbl.filter(m=>m.kind==='T').length, w2=dbl.length-t2;
+    const canBoth = rows>1 && cols>1;
+    if(canBoth) s+= Math.abs(t2-w2)/dbl.length*.8;
+  }
+  return s;
+}
+function tile(cols, rows, share, orient, stagger, rng){
+  let best=null,bs=Infinity;
+  const tries = Math.min(600, 80+cols*rows*12);
+  for(let i=0;i<tries;i++){
+    const t=tileOnce(cols,rows,share,orient,rng);
+    const s=tilingScore(t,cols,rows,share,stagger)+rng()*.01;
+    if(s<bs){bs=s;best=t}
+  }
+  // neighbours (edge-sharing)
+  best.mods.forEach(m=>m.nb=new Set());
+  for(let r=0;r<rows;r++) for(let c=0;c<cols;c++){
+    const a=best.occ[r][c];
+    if(c+1<cols){const b=best.occ[r][c+1]; if(a!==b){best.mods[a].nb.add(b);best.mods[b].nb.add(a)}}
+    if(r+1<rows){const b=best.occ[r+1][c]; if(a!==b){best.mods[a].nb.add(b);best.mods[b].nb.add(a)}}
+  }
+  return best;
+}
+
+/* ============================================================
+   2. MOTIFS — build each module's stitch grid
+   ============================================================ */
+function motifPool(){
+  return MOTIFS.filter(m=>!S.disabled.has(m.id) && (!S.region||m.region===S.region) && (!S.type||m.type===S.type));
+}
+// EQUAL SPACING: the gap between repeats inside a double module is always 2 empty stitches,
+// matching the gutter between neighbouring modules (1-stitch margin + 1-stitch margin)
+function bandRows(){ return ['.............','.............']; }
+function bandCols(){ return Array.from({length:13},()=>'..'); }
+/* CONNECTOR RULE: the two repeats in a double module are joined through the 2-stitch gap.
+   A stem runs along the centre line from one motif, across the gap (3 stitches wide there), to the other,
+   stopping as soon as it touches each motif. It uses the accent thread (off-white on coloured grounds). */
+function connectRepeats(g, vertical, motif){
+  const fill = [...motif.grid.join('')].filter(c=>c!=='.').length/169;
+  const C = fill>0.6 ? '1' : '2';               // dense motifs: accents are negative space, so use the main thread
+  const orig=g.map(r=>r), G=g.map(r=>[...r]);
+  const at=(y,x)=> (y>=0&&y<orig.length&&x>=0&&x<orig[0].length) ? orig[y][x] : '.';
+  const touches=(y,x)=>{for(let dy=-1;dy<=1;dy++)for(let dx=-1;dx<=1;dx++){if(!dy&&!dx)continue; if(at(y+dy,x+dx)!=='.') return true} return false};
+  const MAX=6;
+  if(vertical){
+    for(const y of [13,14]) for(const x of [5,6,7]) G[y][x]=C;
+    for(const [start,step] of [[12,-1],[15,1]]){
+      const path=[]; let ok=false;
+      for(let y=start, n=0; n<MAX && y>=0 && y<orig.length; y+=step, n++){
+        if(orig[y][6]!=='.'){ ok=true; break; }
+        path.push(y); if(touches(y,6)){ ok=true; break; }
+      }
+      if(ok) path.forEach(y=>G[y][6]=C);
+    }
+  } else {
+    for(const x of [13,14]) for(const y of [5,6,7]) G[y][x]=C;
+    for(const [start,step] of [[12,-1],[15,1]]){
+      const path=[]; let ok=false;
+      for(let x=start, n=0; n<MAX && x>=0 && x<orig[0].length; x+=step, n++){
+        if(orig[6][x]!=='.'){ ok=true; break; }
+        path.push(x); if(touches(6,x)){ ok=true; break; }
+      }
+      if(ok) path.forEach(x=>G[6][x]=C);
+    }
+  }
+  return G.map(r=>r.join(''));
+}
+function pickMotif(list, used, nbIds, rng){
+  // prefer least used, never the same motif as a neighbour when avoidable
+  let best=null,bs=Infinity;
+  for(const m of list){
+    const s=(used[m.id]||0)*2 + (nbIds.has(m.id)?6:0) + rng()*1.5;
+    if(s<bs){bs=s;best=m}
+  }
+  return best;
+}
+function assignMotifs(t, rng){
+  const pool=motifPool();
+  let sqAll=pool.filter(m=>m.size==='square'), tl=pool.filter(m=>m.size==='tall'&&m.symmetric);
+  if(!sqAll.length) sqAll=MOTIFS.filter(m=>m.size==='square');
+  // a square module shows one motif on its own, so it must already have a mirror axis
+  let sq=sqAll.filter(m=>m.axes.length);
+  if(!sq.length) sq=MOTIFS.filter(m=>m.size==='square'&&m.axes.length);
+  // squares that may be stacked in a tall module must be left↔right symmetric themselves
+  let sqStack=sq.filter(m=>m.symmetric);
+  if(!sqStack.length) sqStack=MOTIFS.filter(m=>m.size==='square'&&m.symmetric);
+  const used={};
+  t.mods.forEach((m,i)=>{
+    if(m.border) return;
+    const ov=S.overrides[i]||{};
+    const r2=ov.motifSalt?rngFrom(S.seed+'|m|'+i+'|'+ov.motifSalt):rng;
+    const nbIds=new Set([...m.nb].filter(j=>j<i).flatMap(j=>t.mods[j].motifIds||[]));
+    let g, ms, how;
+    if(m.kind==='S'){
+      const mo=pickMotif(sq,used,nbIds,r2); used[mo.id]=(used[mo.id]||0)+1;
+      g=mo.grid; ms=[mo]; how='single';   // never rotated, never flipped
+    } else if(m.kind==='T'){
+      const useTall = tl.length && (S.doubleMode==='tall' || (S.doubleMode==='mix' && r2()<.6) || !sqStack.length);
+      if(useTall){
+        const mo=pickMotif(tl,used,nbIds,r2); used[mo.id]=(used[mo.id]||0)+1;
+        g=mirrorColours(mo.grid); ms=[mo]; how='tall';
+      } else {
+        // upright motif repeated above itself — never flipped upside down
+        const mo=pickMotif(sqStack,used,nbIds,r2); used[mo.id]=(used[mo.id]||0)+1;
+        const top=mirrorColours(mo.grid);
+        g=connectRepeats([...top, ...bandRows(), ...top], true, mo); ms=[mo]; how='stacked';
+      }
+    } else {
+      // wide: upright motif facing its mirror image across a 2-column band (confronted pair)
+      // asymmetric motifs (birds, stepped corners) live here, mirrored into a balanced pair
+      const mo=pickMotif(sqAll,used,nbIds,r2); used[mo.id]=(used[mo.id]||0)+1;
+      let left=mo.grid;
+      if(mo.faces){ const inward = S.rotate; const facesRight = mo.faces==='right';
+        if(inward!==facesRight) left=flipH(left); }
+      const right=flipH(left), band=bandCols();
+      g=connectRepeats(left.map((row,y)=>row+band[y]+right[y]), false, mo); ms=[mo]; how='facing';
+    }
+    if(m.kind!=='S' ? !isSymFull(g) : !(charLR(g)||charTB(g))) console.warn('symmetry rule violated', ms[0].id);
+    if(!fillsField(g)) console.warn('fill rule violated', ms[0].id);
+    m.grid=g; m.motifs=ms; m.motifIds=ms.map(x=>x.id); m.how=how;
+    finishGrid(m);
+  });
+  assignBorder(t, rng);
+}
+function finishGrid(m){
+  {
+    // stitch counts per colour slot
+    const cnt={'1':0,'2':0,'3':0};
+    m.grid.forEach(row=>{for(const ch of row) if(ch in cnt) cnt[ch]++});
+    if(!S.accents){cnt['1']+=cnt['2']+cnt['3'];cnt['2']=0;cnt['3']=0}
+    m.cnt=cnt;
+    // dense motifs draw with colour changes across a stitched ground. Layering an accent inside a solid field
+    // would put red on black / red on green, so their accents are left unstitched and read as negative space
+    m.dense = (cnt['1']+cnt['2']+cnt['3'])/(m.grid.length*m.grid[0].length) > 0.6;
+    if(m.dense && S.accents){
+      // Dense motifs are stitched in one thread. Accent stitches enclosed by the field become negative space
+      // (the drawing); accent stitches on the outline stay stitched so the silhouette still fills the field.
+      const g=m.grid, H=g.length, W=g[0].length;
+      const filled=(y,x)=>y>=0&&y<H&&x>=0&&x<W&&g[y][x]!=='.';
+      m.grid=g.map((row,y)=>[...row].map((c,x)=>{
+        if(c==='.'||c==='1') return c;
+        const enclosed=filled(y-1,x)&&filled(y+1,x)&&filled(y,x-1)&&filled(y,x+1);
+        return enclosed?'.':'1';
+      }).join(''));
+      m.cnt={'1':[...m.grid.join('')].filter(c=>c==='1').length,'2':0,'3':0};
+    }
+  }
+}
+
+/* ============================================================
+   2b. BORDER — modules framing the field
+   ============================================================ */
+// split a run of n units into 1s and 2s, mirrored about the centre so the frame stays balanced
+function segmentRun(n, rng){
+  const p2=Math.min(.9, S.share/100*1.1);
+  let half=Math.floor(n/2), mid=[];
+  if(n%2) mid=[1]; else if(n>=2){ mid=[2]; half-=1; }   // even runs get a centre double so mirror partners never touch
+  const h=[]; let left=half;
+  while(left>0){ if(left>=2 && rng()<p2){h.push(2);left-=2}else{h.push(1);left-=1} }
+  return [...h, ...mid, ...[...h].reverse()];
+}
+function buildBorder(TC, TR, sd, rng){
+  const out=[]; const {L,T,R,B}=sd;
+  const corner=(c,r)=>out.push({c,r,w:1,h:1,kind:'S',border:'corner'});
+  if(T&&L) corner(0,0); if(T&&R) corner(TC-1,0); if(B&&L) corner(0,TR-1); if(B&&R) corner(TC-1,TR-1);
+  const hRun=(row,side)=>{ let c=L; for(const len of segmentRun(TC-L-R,rng)){ out.push({c,r:row,w:len,h:1,kind:len===2?'W':'S',border:side}); c+=len; } };
+  const vRun=(col,side)=>{ let r=T; for(const len of segmentRun(TR-T-B,rng)){ out.push({c:col,r,w:1,h:len,kind:len===2?'T':'S',border:side}); r+=len; } };
+  if(T) hRun(0,'top'); if(B) hRun(TR-1,'bottom'); if(L) vRun(0,'left'); if(R) vRun(TC-1,'right');
+  return out;
+}
+// place n repeats of a unit (length u, gap g) centred along a field of length Lf; any odd leftover goes into the centre gap
+function layoutRun(Lf,u,g){
+  for(let n=Math.max(1,Math.floor((Lf+g)/(u+g))); n>=1; n--){
+    const gaps=Array(Math.max(0,n-1)).fill(g); let left=Lf-(n*u+(n-1)*g);
+    if(left<0) continue;
+    if(left%2){ if(n%2===0 && n>1){gaps[n/2-1]+=1; left-=1;} else continue; }
+    return {n,gaps,start:left/2};
+  }
+  return {n:1,gaps:[],start:Math.max(0,Math.floor((Lf-u)/2))};
+}
+function fillStrip(band, horizontal, len){
+  // prebuilt from the band unit: edge to edge (fill rule), symmetric spacing, upright pictorial units,
+  // geometric bands turned with the edge and mirrored at the module centre
+  return band.strips[(horizontal?'h':'v')+len];
+}
+function assignBorder(t, rng){
+  const bm=t.mods.filter(m=>m.border); if(!bm.length) return;
+  const ov=S.overrides.border||{};
+  const r=rngFrom(S.seed+'|border|'+(ov.motifSalt||0));
+  const band = S.border.pattern!=='auto' ? BORDERS.find(b=>b.id===S.border.pattern) : BORDERS[Math.floor(r()*BORDERS.length)];
+  const corners = MOTIFS.filter(m=>m.c4 && !S.disabled.has(m.id));
+  let cm = S.border.corner!=='auto' ? MOTIFS.find(m=>m.id===S.border.corner) : null;
+  if(!cm){ const same=corners.filter(m=>m.region===band.area); const list=same.length?same:corners; cm=list[Math.floor(r()*list.length)]; }
+  t.borderBand=band; t.cornerMotif=cm;
+  const meta={id:band.id,name:band.name,arabic:band.arabic,type:'border',region:band.area,city:band.city,source:band.source};
+  bm.forEach(m=>{
+    if(m.border==='corner'){ m.grid=cm.grid; m.motifs=[cm]; m.how='corner'; }
+    else {
+      const horizontal = m.border==='top'||m.border==='bottom';
+      const len = (horizontal?m.w:m.h)===2 ? TALL_INNER : INNER;
+      m.grid=fillStrip(band,horizontal,len); m.motifs=[meta]; m.how='band';
+    }
+    m.motifIds=[m.motifs[0].id];
+    finishGrid(m);
+  });
+}
+function computeNeighbours(t){
+  const occ=Array.from({length:t.rows},()=>Array(t.cols).fill(-1));
+  t.mods.forEach((m,i)=>{for(let y=m.r;y<m.r+m.h;y++)for(let x=m.c;x<m.c+m.w;x++)occ[y][x]=i; m.nb=new Set()});
+  for(let r=0;r<t.rows;r++) for(let c=0;c<t.cols;c++){
+    const a=occ[r][c];
+    if(c+1<t.cols){const b=occ[r][c+1]; if(a!==b){t.mods[a].nb.add(b);t.mods[b].nb.add(a)}}
+    if(r+1<t.rows){const b=occ[r+1][c]; if(a!==b){t.mods[a].nb.add(b);t.mods[b].nb.add(a)}}
+  }
+  t.occ=occ;
+}
+
+/* ============================================================
+   3. COLOUR — balance total area of each colour across the composition
+   ============================================================ */
+function colourways(keys){
+  const hex=Object.fromEntries(PALETTE.map(p=>[p.key,p.hex]));
+  const ok=(bg,fg)=>contrastRatio(hex[bg],hex[fg])>=MIN_CONTRAST;
+  const out=[];
+  for(const bg of keys){
+    const fgs=keys.filter(k=>k!==bg && ok(bg,k));
+    for(const p of fgs){
+      const rest=fgs.filter(k=>k!==p);
+      if(!rest.length){out.push({bg,p,s:p,t:p});continue}
+      for(const s2 of rest){const r2=rest.filter(k=>k!==s2); out.push({bg,p,s:s2,t:r2.length?r2[0]:s2});}
+    }
+  }
+  return out;
+}
+function colourwaysUnfiltered(keys){
+  const out=[];
+  for(const bg of keys){
+    const others=keys.filter(k=>k!==bg);
+    for(const p of others){
+      const rest=others.filter(k=>k!==p);
+      if(!rest.length){out.push({bg,p,s:p,t:p});continue}
+      for(const s of rest){
+        const rest2=rest.filter(k=>k!==s);
+        out.push({bg,p,s,t:rest2.length?rest2[0]:s});
+      }
+    }
+  }
+  return out;
+}
+function moduleAreas(m, cw){
+  const cov=STITCHES[S.stitch].cover;
+  const total=m.w*m.h*UNIT*UNIT;
+  const a={}; const add=(k,v)=>a[k]=(a[k]||0)+v;
+  const neg = m.dense; // dense fields never carry accent colours: accents become negative space
+  const st={p:m.cnt['1']*cov, s:neg?0:m.cnt['2']*cov, t:neg?0:m.cnt['3']*cov};
+  add(cw.bg, total-st.p-st.s-st.t); add(cw.p,st.p); add(cw.s,st.s); add(cw.t,st.t);
+  return a;
+}
+function assignColours(t, rng){
+  const keys=S.palette.slice();
+  const hex=Object.fromEntries(PALETTE.map(p=>[p.key,p.hex]));
+  const ways=colourways(keys);
+  const N=keys.length;
+  let best=null;
+  for(let attempt=0;attempt<24;attempt++){
+    const res=colourAttempt(attempt);
+    if(!best || res.clash<best.clash || (res.clash===best.clash && res.imb<best.imb)) best=res;
+    if(best.clash===0 && best.imb<.02 && attempt>=3) break;
+  }
+  t.mods.forEach((m,i)=>m.cw=best.cw[i]);
+  t.totals=best.totals;
+
+  function colourAttempt(attempt){
+  const cw=t.mods.map(()=>null);
+  const jitter=t.mods.map((_,i)=>{const ov=S.overrides[i]; return ov&&ov.colourSalt?rngFrom(S.seed+'|c|'+i+'|'+ov.colourSalt):rng});
+  // units: every field module is its own unit; all border modules share one colourway
+  // units: field modules colour individually; border modules in mirror-image positions share a colourway
+  const units=[], unitOf=[], keyU={}; let bu=-1;
+  const bkey=m=> m.border==='corner' ? 'corner'
+      : (m.border==='top'||m.border==='bottom') ? 'h|'+Math.abs(m.c+m.w/2-(t.sd.L+t.cols-t.sd.R)/2)   // distance from the centre of its own run
+      : 'v|'+Math.abs(m.r+m.h/2-(t.sd.T+t.rows-t.sd.B)/2);
+  t.mods.forEach((m,i)=>{ if(m.border){ const k=bkey(m); if(!(k in keyU)){keyU[k]=units.length;units.push([])} units[keyU[k]].push(i); unitOf[i]=keyU[k] } else { unitOf[i]=units.length; units.push([i]) } });
+  const isB=u=>t.mods[units[u][0]].border;
+  const unitNb=units.map((mem,u)=>{const s=new Set(); mem.forEach(i=>t.mods[i].nb.forEach(j=>{if(unitOf[j]!==u)s.add(unitOf[j])})); return s});
+  const ucw=units.map(()=>null);
+  const uJit=units.map((mem,u)=>{const ov=isB(u)?S.overrides.border:S.overrides[mem[0]]; return ov&&ov.colourSalt?rngFrom(S.seed+'|c|'+(isB(u)?'b'+u:mem[0])+'|'+ov.colourSalt):jitter[mem[0]]});
+  const unitAreas=(u,w)=>{const a={}; units[u].forEach(i=>{const x=moduleAreas(t.mods[i],w); for(const k in x)a[k]=(a[k]||0)+x[k]}); return a};
+  const totals=Object.fromEntries(keys.map(k=>[k,0]));
+
+  function score(u, w, tot){
+    const a=unitAreas(u,w);
+    let sum=0; const nt={}; for(const k of keys){nt[k]=tot[k]+(a[k]||0); sum+=nt[k]}
+    // imbalance measured in module-areas, so it carries equal weight on small and large compositions
+    let bal=0; for(const k of keys) bal+=Math.abs(nt[k]-sum/N);
+    const unitA=UNIT*UNIT;
+    let s=Math.min(bal/unitA, 12)*1.6 + (bal/sum)*10;
+    for(const v of unitNb[u]){const o=ucw[v]; if(!o) continue;
+      if(o.bg===w.bg) s+=60;                  // touching modules never share a background
+      if(o.bg===w.p && o.p===w.bg) s+=.6;     // exact inverse next door looks mechanical
+      if(o.p===w.p) s+=.25;
+    }
+    return s;
+  }
+  const add=(u,w,sign)=>{const a=unitAreas(u,w); for(const k in a) totals[k]+=sign*a[k]};
+  const order=units.map((_,u)=>u);
+  order.sort((a,b)=>isB(b)-isB(a));   // frame units first: they span the most area
+  if(attempt>0){ // alternative visiting orders escape local dead-ends
+    const r=rngFrom(S.seed+'|order|'+attempt); const head=[]; while(order.length&&isB(order[0])) head.push(order.shift());
+    if(attempt%2) order.sort((a,b)=>unitNb[b].size-unitNb[a].size || r()-.5);
+    else for(let i=order.length-1;i>0;i--){const j=r()*(i+1)|0;[order[i],order[j]]=[order[j],order[i]]}
+    order.unshift(...head);
+  }
+  for(const u of order){
+    let best=null,bs=Infinity;
+    for(const w of ways){const s=score(u,w,totals)+uJit[u]()*.35; if(s<bs){bs=s;best=w}}
+    ucw[u]=best; add(u,best,1);
+  }
+  for(let sweep=0;sweep<8;sweep++){
+    for(const u of order){
+      add(u,ucw[u],-1); const cur=ucw[u]; ucw[u]=null;
+      let best=cur,bs=score(u,cur,totals);
+      for(const w of ways){const s=score(u,w,totals)+uJit[u]()*.05; if(s<bs-1e-6){bs=s;best=w}}
+      ucw[u]=best; add(u,best,1);
+    }
+  }
+  // single-unit moves that lower imbalance without creating a clash
+  const imbOf=()=>{const sm=Object.values(totals).reduce((a,b)=>a+b,0);return keys.reduce((a,k)=>a+Math.abs(totals[k]-sm/N),0)};
+  for(let pass=0;pass<3;pass++){
+    let improved=false;
+    for(let u=0;u<units.length;u++) for(const w of ways){
+      if(w.bg===ucw[u].bg) continue;
+      if([...unitNb[u]].some(v=>ucw[v].bg===w.bg)) continue;
+      if([...unitNb[u]].some(v=>ucw[v].bg===w.p&&ucw[v].p===w.bg)) continue;
+      const before=imbOf(), old=ucw[u];
+      add(u,old,-1); add(u,w,1); ucw[u]=w;
+      if(imbOf()<before-1e-6) improved=true; else { add(u,w,-1); add(u,old,1); ucw[u]=old; }
+    }
+    if(!improved) break;
+  }
+  units.forEach((mem,u)=>mem.forEach(i=>cw[i]=ucw[u]));
+  let clash=0; t.mods.forEach((m,i)=>m.nb.forEach(j=>{if(cw[j].bg===cw[i].bg) clash++}));
+  const sum=Object.values(totals).reduce((a,b)=>a+b,0);
+  const imb=Math.max(...keys.map(k=>Math.abs(totals[k]/sum-1/N)));
+  return {cw,totals,clash,imb};
+  }
+}
+
+/* ============================================================
+   4. RENDER SVG
+   ============================================================ */
+function hexOf(k){return PALETTE.find(p=>p.key===k).hex}
+function buildSVG(t, forExport){
+  const W=t.cols*UNIT*CELL, H=t.rows*UNIT*CELL;
+  const st=STITCHES[S.stitch];
+  const out=[];
+  const physW=S.outW, physH=+(S.outW*t.rows/t.cols).toFixed(3);
+  const size = S.outUnit==='px' ? `width="${Math.round(physW)}" height="${Math.round(physH)}"` : `width="${physW}${S.outUnit}" height="${physH}${S.outUnit}"`;
+  out.push(`<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 ${W} ${H}" ${forExport?size:''} shape-rendering="geometricPrecision">`);
+  if(forExport){
+    out.push(`<title>Tatreez modular composition — ${S.cols}×${S.rows}${S.border.on?' with border':''}</title>`);
+    out.push(`<desc>Generated with Tatreez Module Generator. Seed: ${esc(S.seed)}. Stitch: ${esc(st.name)}. Motifs reinterpreted from Palestinian tatreez; see data-* attributes on each module group for name, region and source.</desc>`);
+  }
+  out.push(`<g id="composition">`);
+  const order=[...t.mods.keys()].sort((a,b)=>(!!t.mods[a].border)-(!!t.mods[b].border));
+  let opened=null;
+  order.forEach(i=>{ const m=t.mods[i];
+    const grp=m.border?'border':'field';
+    if(forExport && grp!==opened){ if(opened) out.push('</g>'); out.push(`<g id="${grp}">`); opened=grp; }
+    const x0=m.c*UNIT*CELL, y0=m.r*UNIT*CELL, w=m.w*UNIT*CELL, h=m.h*UNIT*CELL;
+    const mo=m.motifs[0];
+    const label=`${String(i+1).padStart(2,'0')}-${m.border?'border-'+m.border+'-':''}${m.kind==='S'?'square':m.kind==='T'?'tall':'wide'}-${mo.id}`;
+    const meta=` data-motif="${esc(mo.name)}"${mo.arabic?` data-arabic="${esc(mo.arabic)}"`:''} data-type="${esc(mo.type)}" data-region="${esc(mo.region)}"${mo.city?` data-city="${esc(mo.city)}"`:''}${mo.source?` data-source="${esc(mo.source)}"`:''}`;
+    out.push(forExport?`<g id="${esc(label)}"${meta}>`:`<g id="${esc(label)}" class="mod" data-i="${i}">`);
+    out.push(`<rect x="${x0}" y="${y0}" width="${w}" height="${h}" fill="${hexOf(m.cw.bg)}"/>`);
+    const paths={'1':[],'2':[],'3':[]};
+    // stitch field begins one cell in from the module edge
+    const neg = S.accents && m.dense;
+    m.grid.forEach((row,ry)=>{for(let cx=0;cx<row.length;cx++){const ch=row[cx]; if(ch==='.'||!(ch in paths)) continue;
+      if(neg && ch!=='1') continue;
+      const slot=S.accents?ch:'1';
+      paths[slot].push(st.d(x0+(cx+1)*CELL, y0+(ry+1)*CELL));}});
+    const col={'1':m.cw.p,'2':m.cw.s,'3':m.cw.t};
+    for(const k of ['1','2','3']) if(paths[k].length) out.push(`<path fill="${hexOf(col[k])}" d="${paths[k].join('')}"/>`);
+    out.push(`</g>`);
+  });
+  if(forExport && opened) out.push('</g>');
+  out.push(`</g></svg>`);
+  return out.join(forExport?'\n':'');
+}
+
+/* ============================================================
+   GENERATE + UI
+   ============================================================ */
+function generate(){
+  const rng=rngFrom(S.seed+'|'+S.cols+'x'+S.rows);
+  const t=tile(S.cols,S.rows,S.share,S.orient,S.stagger,rngFrom(S.seed+'|tile|'+S.cols+'x'+S.rows+'|'+S.share+'|'+S.orient+'|'+S.stagger));
+  const sd=S.border.on?{L:+S.border.sides.left,T:+S.border.sides.top,R:+S.border.sides.right,B:+S.border.sides.bottom}:{L:0,T:0,R:0,B:0};
+  t.mods.forEach(m=>{m.c+=sd.L;m.r+=sd.T});
+  t.cols=S.cols+sd.L+sd.R; t.rows=S.rows+sd.T+sd.B; t.sd=sd;
+  if(S.border.on) t.mods.push(...buildBorder(t.cols,t.rows,sd,rngFrom(S.seed+'|bseg|'+t.cols+'x'+t.rows+'|'+S.share)));
+  computeNeighbours(t);
+  assignMotifs(t,rngFrom(S.seed+'|motif'));
+  assignColours(t,rngFrom(S.seed+'|colour'));
+  LAST=t;
+  document.getElementById('canvas').innerHTML=buildSVG(t,false);
+  updateStatus(t);
+}
+function updateStatus(t){
+  const sum=Object.values(t.totals).reduce((a,b)=>a+b,0);
+  const n2=t.mods.filter(m=>m.kind!=='S').length;
+  const bar=S.palette.map(k=>`<i style="width:${(t.totals[k]/sum*100).toFixed(2)}%;background:${hexOf(k)}"></i>`).join('');
+  const leg=S.palette.map(k=>`<span><i style="background:${hexOf(k)}"></i>${(t.totals[k]/sum*100).toFixed(1)}%</span>`).join('');
+  const fm=t.mods.filter(m=>!m.border), bmods=t.mods.filter(m=>m.border);
+  const sq=fm.filter(m=>m.kind==='S').length, tall=fm.filter(m=>m.kind==='T').length, wide=fm.filter(m=>m.kind==='W').length;
+  document.getElementById('status').innerHTML=
+    `<span><b>${fm.length}</b> modules · ${sq} square · ${tall} tall · ${wide} wide</span>`+
+    (bmods.length?`<span><b>${bmods.length}</b> border · ${esc(t.borderBand.name)} (${esc(t.borderBand.area)}) · corners: ${esc(t.cornerMotif.name)}</span>`:'')+
+    `<span><b>${t.mods.reduce((a,m)=>a+m.grid.reduce((b,r)=>b+[...r].filter(c=>c!=='.').length,0),0).toLocaleString()}</b> stitches</span>`+
+    `<span>Min. contrast <b>${Math.min(...t.mods.flatMap(m=>{const c=[m.cw.p]; if(S.accents){if(m.cnt['2'])c.push(m.cw.s); if(m.cnt['3'])c.push(m.cw.t)} return c.map(x=>contrastRatio(hexOf(m.cw.bg),hexOf(x)))})).toFixed(2)}:1</b></span>`+
+    `<span style="display:flex;gap:10px;align-items:center">Colour balance <span class="balance">${bar}</span><span class="legend">${leg}</span></span>`;
+}
+function updateSizeInfo(){
+  const tc=S.cols+(S.border.on?(+S.border.sides.left)+(+S.border.sides.right):0), tr=S.rows+(S.border.on?(+S.border.sides.top)+(+S.border.sides.bottom):0);
+  const h=+(S.outW*tr/tc).toFixed(2);
+  const mod=+(S.outW/tc).toFixed(2), stitch=+(S.outW/(tc*UNIT)).toFixed(3);
+  document.getElementById('sizeInfo').textContent=`${S.outW} × ${h} ${S.outUnit} · module ${mod} ${S.outUnit} · stitch cell ${stitch} ${S.outUnit}`;
+}
+function updatePoolInfo(){
+  const p=motifPool();
+  document.getElementById('poolInfo').textContent=`${p.filter(m=>m.size==='square').length} square and ${p.filter(m=>m.size==='tall').length} tall motifs in play.`+(p.filter(m=>m.size==='square').length?'':' No square motifs match — falling back to the full set.');
+}
+function regen(resetOverrides=true){ if(resetOverrides) S.overrides={}; updateSizeInfo(); updatePoolInfo(); generate(); }
+
+function bindNum(id,key,min,max){const el=document.getElementById(id);el.addEventListener('input',()=>{let v=parseInt(el.value,10);if(!isFinite(v))return;v=Math.max(min,Math.min(max,v));S[key]=v;document.getElementById('preset').value='';regen()})}
+bindNum('cols','cols',1,24); bindNum('rows','rows',1,24);
+document.getElementById('preset').addEventListener('change',e=>{if(!e.target.value)return;const [c,r]=e.target.value.split(',').map(Number);S.cols=c;S.rows=r;cols.value=c;rows.value=r;regen()});
+share.addEventListener('input',()=>{S.share=+share.value;shareOut.textContent=S.share+'%';regen()});
+function seg(id,key){const el=document.getElementById(id);el.addEventListener('click',e=>{const b=e.target.closest('button');if(!b)return;el.querySelectorAll('button').forEach(x=>x.setAttribute('aria-pressed',x===b));S[key]=b.dataset.v;if(id==='groupBy')renderCatalogue();else regen()})}
+seg('orient','orient'); seg('groupBy','groupBy');
+doubleMode.addEventListener('change',()=>{S.doubleMode=doubleMode.value;regen()});
+stagger.addEventListener('change',()=>{S.stagger=stagger.checked;regen()});
+accents.addEventListener('change',()=>{S.accents=accents.checked;regen(false)});
+rotate.addEventListener('change',()=>{S.rotate=rotate.checked;regen()});
+regionFilter.addEventListener('change',()=>{S.region=regionFilter.value;regen()});
+typeFilter.addEventListener('change',()=>{S.type=typeFilter.value;regen()});
+outW.addEventListener('input',()=>{const v=parseFloat(outW.value);if(v>0){S.outW=v;updateSizeInfo()}});
+outUnit.addEventListener('change',()=>{S.outUnit=outUnit.value;updateSizeInfo()});
+seed.addEventListener('input',()=>{S.seed=seed.value||'seed';regen()});
+document.getElementById('shuffle').addEventListener('click',()=>{const w=['olive','sarw','qamar','reesh','nakhleh','zaytoun','burtuqal','hilal','najmeh','warda','sunbuleh','qandil','mushut','aqrab','jamal'];const r=Math.random;S.seed=w[r()*w.length|0]+'-'+(1000+(r()*9000|0));seed.value=S.seed;regen()});
+document.getElementById('canvas').addEventListener('click',e=>{
+  const g=e.target.closest('g.mod'); if(!g) return; const i=+g.dataset.i;
+  const key=LAST.mods[i].border?'border':i;
+  const ov=S.overrides[key]||(S.overrides[key]={});
+  if(e.shiftKey) ov.colourSalt=(ov.colourSalt||0)+1; else ov.motifSalt=(ov.motifSalt||0)+1;
+  generate();
+});
+let DL=null; // platform download capability when hosted as an artifact
+try{ if(window.claude && claude.use) claude.use('downloads').then(d=>{DL=d}).catch(()=>{}); }catch(e){}
+function flash(msg){const el=document.getElementById('dlMsg');el.textContent=msg;clearTimeout(flash.t);flash.t=setTimeout(()=>el.textContent='',4000)}
+document.getElementById('download').addEventListener('click',async()=>{
+  const svg='<?xml version="1.0" encoding="UTF-8"?>\n'+buildSVG(LAST,true);
+  const filename=`tatreez-${S.cols}x${S.rows}-${slug(S.seed)}.svg`;
+  const blob=new Blob([svg],{type:'image/svg+xml'});
+  if(DL){
+    try{ await DL.save({filename,data:blob}); flash('Saved '+filename); }
+    catch(e){ flash(e&&e.code==='declined'?'Download cancelled.':e&&e.code==='rate_limited'?'A save prompt is already open.':'Download unavailable here.'); }
+    return;
+  }
+  const a=document.createElement('a');a.href=URL.createObjectURL(blob);
+  a.download=filename;document.body.appendChild(a);a.click();
+  setTimeout(()=>{URL.revokeObjectURL(a.href);a.remove()},500);
+});
+
+/* symmetry metadata */
+const charLR = g => g.every(r=>r===[...r].reverse().join(''));
+// FILL RULE: a module's stitches reach all four edges of its stitch field (only the 1-stitch module margin stays empty)
+const fillsField = g => [...g[0]].some(c=>c!=='.') && [...g[g.length-1]].some(c=>c!=='.') && g.some(r=>r[0]!=='.') && g.some(r=>r[r.length-1]!=='.');
+const charTB = g => g.every((r,i)=>r===g[g.length-1-i]);
+function trimGrid(g){const rs=g.map((r,i)=>[...r].some(c=>c!=='.')?i:-1).filter(i=>i>=0);if(!rs.length)return g;const h=g.slice(rs[0],rs[rs.length-1]+1);let a=99,b=-1;h.forEach(r=>[...r].forEach((c,j)=>{if(c!=='.'){a=Math.min(a,j);b=Math.max(b,j)}}));return h.map(r=>r.slice(a,b+1))}
+MOTIFS.forEach(m=>{
+  const t=trimGrid(m.grid);
+  m.symmetric = charLR(t);                  // exact left-right mirror, colour included
+  m.axes = [m.symmetric?'lr':null, charTB(t)?'tb':null].filter(Boolean);
+  m.c4 = m.size==='square' && t.length===t[0].length && rot90(t).join()===t.join();
+});
+
+/* border controls */
+(function(){
+  const on=document.getElementById('borderOn'), opts=document.getElementById('borderOpts'), sides=document.getElementById('borderSides');
+  const syncSides=()=>sides.querySelectorAll('button').forEach(b=>b.setAttribute('aria-pressed',!!S.border.sides[b.dataset.v]));
+  on.addEventListener('change',()=>{S.border.on=on.checked; opts.style.display=on.checked?'':'none'; regen()});
+  sides.addEventListener('click',e=>{const b=e.target.closest('button'); if(!b) return; const k=b.dataset.v;
+    S.border.sides[k]=!S.border.sides[k];
+    if(!Object.values(S.border.sides).some(Boolean)) S.border.sides[k]=true;   // keep at least one side
+    syncSides(); regen()});
+  opts.querySelectorAll('[data-sides]').forEach(b=>b.addEventListener('click',()=>{const want=b.dataset.sides.split(',');
+    ['top','right','bottom','left'].forEach(k=>S.border.sides[k]=want.includes(k)); syncSides(); regen()}));
+  const bp=document.getElementById('borderPattern');
+  const groups={}; BORDERS.forEach(b=>(groups[b.area]=groups[b.area]||[]).push(b));
+  bp.innerHTML+=Object.entries(groups).map(([a,list])=>`<optgroup label="${esc(a)}">${list.map(b=>`<option value="${b.id}">${esc(b.name)}${b.city&&b.city!==a?' · '+esc(b.city):''}</option>`).join('')}</optgroup>`).join('');
+  bp.addEventListener('change',()=>{S.border.pattern=bp.value; delete S.overrides.border; regen(false)});
+  const cmSel=document.getElementById('cornerMotif');
+  cmSel.innerHTML+=MOTIFS.filter(m=>m.c4).map(m=>`<option value="${m.id}">${esc(m.name)} · ${esc(m.region)}</option>`).join('');
+  cmSel.addEventListener('change',()=>{S.border.corner=cmSel.value; regen(false)});
+})();
+
+/* stitch + palette pickers */
+(function(){
+  const el=document.getElementById('stitchPick');
+  el.innerHTML=Object.entries(STITCHES).map(([k,v])=>`<button data-k="${k}" aria-pressed="${k===S.stitch}"><svg viewBox="-2 -2 52 52"><path fill="#231f20" d="${v.d(0,0)}${v.d(24,0)}${v.d(0,24)}${v.d(24,24)}"/></svg>${v.name}</button>`).join('');
+  el.addEventListener('click',e=>{const b=e.target.closest('button');if(!b)return;el.querySelectorAll('button').forEach(x=>x.setAttribute('aria-pressed',x===b));S.stitch=b.dataset.k;regen(false)});
+  const pp=document.getElementById('palettePick');
+  pp.innerHTML=PALETTE.map(p=>`<button class="swatch" data-k="${p.key}" aria-pressed="true" ${p.key==='white'?'title="Required: off-white is the contrast partner for every other colour"':''}><i style="background:${p.hex}"></i>${p.name}</button>`).join('');
+  pp.addEventListener('click',e=>{const b=e.target.closest('button');if(!b)return;const k=b.dataset.k;
+    const on=S.palette.includes(k);
+    if(k==='white') return;               // off-white is the only colour that gives every other colour 3:1 contrast
+    if(on && S.palette.length<=2) return; // need at least two colours
+    S.palette = on ? S.palette.filter(x=>x!==k) : PALETTE.map(p=>p.key).filter(x=>x===k||S.palette.includes(x));
+    b.setAttribute('aria-pressed',!on); regen(false)});
+})();
+
+/* tabs */
+document.querySelectorAll('nav.tabs button').forEach(b=>b.addEventListener('click',()=>{
+  document.querySelectorAll('nav.tabs button').forEach(x=>x.setAttribute('aria-selected',x===b));
+  document.querySelectorAll('.view').forEach(v=>v.classList.toggle('on',v.id==='view-'+b.dataset.view));
+  if(b.dataset.view==='cat') renderCatalogue();
+  if(b.dataset.view==='src') renderSources();
+}));
+
+/* ============================================================
+   CATALOGUE
+   ============================================================ */
+S.groupBy='region';
+const TYPE_LABEL={plant:'Plants & trees',animal:'Animals & birds',object:'Objects',architecture:'Architecture',celestial:'Celestial',geometric:'Geometric'};
+const catState={types:new Set(Object.keys(TYPE_LABEL)),sizes:new Set(['square','tall'])};
+function motifThumb(m){
+  const g=m.grid, w=g[0].length+2, h=g.length+2;
+  const cols={'1':'#231f20','2':'#c82026','3':'#00683c'};
+  const bg = '#f6eee9';
+  let d={'1':'','2':'','3':''};
+  g.forEach((row,y)=>{for(let x=0;x<row.length;x++){const c=row[x]; if(c in d) d[c]+=STITCHES.round.d((x+1)*CELL,(y+1)*CELL)}});
+  return `<svg viewBox="0 0 ${w*CELL} ${h*CELL}"><rect width="${w*CELL}" height="${h*CELL}" fill="${bg}"/>${Object.entries(d).map(([k,v])=>v?`<path fill="${cols[k]}" d="${v}"/>`:'').join('')}</svg>`;
+}
+function renderFilters(){
+  const types=Object.keys(TYPE_LABEL).filter(t=>MOTIFS.some(m=>m.type===t));
+  catTypes.innerHTML=types.map(t=>`<label><input type="checkbox" data-t="${t}" ${catState.types.has(t)?'checked':''}> ${TYPE_LABEL[t]}<small>${MOTIFS.filter(m=>m.type===t).length}</small></label>`).join('');
+  catSizes.innerHTML=['square','tall'].map(s=>`<label><input type="checkbox" data-s="${s}" ${catState.sizes.has(s)?'checked':''}> ${s==='square'?'Square · 13 × 13':'Tall · 13 × 28'}<small>${MOTIFS.filter(m=>m.size===s).length}</small></label>`).join('');
+}
+catTypes.addEventListener('change',e=>{const t=e.target.dataset.t;e.target.checked?catState.types.add(t):catState.types.delete(t);renderCatalogue()});
+catSizes.addEventListener('change',e=>{const s=e.target.dataset.s;e.target.checked?catState.sizes.add(s):catState.sizes.delete(s);renderCatalogue()});
+function shownMotifs(){return MOTIFS.filter(m=>catState.types.has(m.type)&&catState.sizes.has(m.size))}
+useAll.addEventListener('click',()=>{shownMotifs().forEach(m=>S.disabled.delete(m.id));renderCatalogue();regen()});
+useNone.addEventListener('click',()=>{shownMotifs().forEach(m=>S.disabled.add(m.id));renderCatalogue();regen()});
+function renderCatalogue(){
+  const list=shownMotifs();
+  const key = S.groupBy==='region' ? m=>m.region||'Unattributed' : S.groupBy==='city' ? m=>m.city||(m.region+' (area-wide)') : m=>TYPE_LABEL[m.type]||m.type;
+  const groups={}; list.forEach(m=>(groups[key(m)]=groups[key(m)]||[]).push(m));
+  const names=Object.keys(groups).sort((a,b)=>(a==='Supplied artwork')-(b==='Supplied artwork')||a.localeCompare(b));
+  catMain.innerHTML = names.map(n=>{
+    const ms=groups[n];
+    const sub = S.groupBy==='region' ? (()=>{const byCity={};ms.forEach(m=>{const c=m.city||'Area-wide';(byCity[c]=byCity[c]||[]).push(m)});return Object.keys(byCity).sort().map(c=>`<h4>${esc(c)}</h4><div class="grid-cards">${byCity[c].map(card).join('')}</div>`).join('')})()
+              : `<div class="grid-cards" style="margin-top:12px">${ms.map(card).join('')}</div>`;
+    return `<h3>${esc(n)} <span style="font:400 13px ui-sans-serif;color:var(--muted)">${ms.length}</span></h3>${sub}`;
+  }).join('') || '<p class="hint">No motifs match these filters.</p>';
+}
+function card(m){
+  const on=!S.disabled.has(m.id);
+  return `<div class="card ${on?'':'off'}">
+    <label class="use"><input type="checkbox" data-use="${esc(m.id)}" ${on?'checked':''}> use</label>
+    <div class="thumb">${motifThumb(m)}</div>
+    <div class="nm">${esc(m.name)}</div>
+    ${m.arabic?`<div class="ar">${esc(m.arabic)}</div>`:''}
+    <div class="meta"><span class="tag">${esc(TYPE_LABEL[m.type]||m.type)}</span>${m.region?`<span class="tag">${esc(m.region)}</span>`:''}${m.city?`<span class="tag">${esc(m.city)}</span>`:''}<span class="tag">${m.size==='tall'?'13×28':'13×13'}</span><span class="tag" title="${m.symmetric?'Mirror-symmetric':'Asymmetric: shown facing its mirror image in wide modules'}">${m.symmetric?'⟷ symmetric':'↑ directional'}</span></div>
+    ${m.note?`<div class="note">${esc(m.note)}</div>`:''}
+    <div class="note" style="color:var(--ink)">${m.url?`<a href="${esc(m.url)}" target="_blank" rel="noopener">Tirazain chart on Tatreez.app ↗</a>`:m.inventory_status==='supplied'?'From your supplied artwork':esc(m.source||'')}</div>
+  </div>`;
+}
+catMain.addEventListener('change',e=>{const id=e.target.dataset.use;if(!id)return;e.target.checked?S.disabled.delete(id):S.disabled.add(id);e.target.closest('.card').classList.toggle('off',!e.target.checked);regen()});
+
+/* sources & inventory */
+function renderSources(){
+  const redrawn={}; MOTIFS.forEach(m=>{redrawn[m.region]=(redrawn[m.region]||0)+1});
+  const total=Object.values(INVENTORY).reduce((a,v)=>a+v[0],0);
+  srcMain.innerHTML=`<h3>Sources</h3>
+  <p class="hint" style="max-width:760px">Patterns are taken from two sources and redrawn onto the 13-stitch field. <b>Widad Kamel Kawar &amp; Tania Tamari Nasir, <i>Palestinian Embroidery: Traditional “Fallahi” Cross-stitch</i> (2021)</b> is the reference for each area’s signature pattern: the cypress variants on pp.18–19 were extracted stitch-for-stitch from the book’s vector charts. <b>The Tirazain archive on Tatreez.app</b> supplies charted motifs by town and village; ${MOTIFS.filter(m=>m.url).length} of those charts were read cell by cell and fitted to 13 × 13 or 13 × 28.</p>
+  <p class="hint" style="max-width:760px"><b>How charts were fitted:</b> crop to one representative element (a single tree from a row, the centre of a disc), then merge duplicated rows or columns (thick trunks, doubled stepping) until the motif is 13 wide, keeping left↔right symmetry. Motifs that could not shrink without losing their identity (large birds, the Jaffa amulet, the Gaza pendant, the full Tent of the Pasha) were left out rather than redrawn from guesswork.</p>
+  <h4>Kawar &amp; Nasir — charts and samplers reviewed</h4>
+  <div class="grid-cards" style="grid-template-columns:1fr">${KAWAR_INV.map(k=>`<div class="card" style="flex-direction:row;gap:14px;align-items:baseline"><b style="min-width:220px">${esc(k[0])}</b><span>${esc(k[1])}</span><span class="note" style="margin-left:auto">${esc(k[2])}</span></div>`).join('')}</div>
+  <h3>Tirazain archive inventory <span style="font:400 13px ui-sans-serif;color:var(--muted)">${total} motifs listed across ${Object.keys(INVENTORY).length} towns, villages and regions</span></h3>
+  <p class="hint">Numbered variants are grouped (×n). Ramallah and Hebron pages expose the first 100 entries; follow the area link for the full list.</p>
+  ${Object.entries(INVENTORY).map(([r,[n,url,list]])=>`<h4>${esc(r)} · ${n} motifs <a href="${esc(url)}" target="_blank" rel="noopener" style="font-weight:400;text-transform:none;letter-spacing:0">open ↗</a></h4><div class="note" style="columns:3 260px;column-gap:28px;font-size:12px;line-height:1.6">${list.split(';').map(x=>`<div>${esc(x)}</div>`).join('')}</div>`).join('')}`;
+}
+
+/* populate filters */
+(function(){
+  const regions=[...new Set(MOTIFS.map(m=>m.region).filter(Boolean))].sort((a,b)=>(a==='Supplied artwork')-(b==='Supplied artwork')||a.localeCompare(b));
+  regionFilter.innerHTML='<option value="">All regions</option>'+regions.map(r=>`<option>${esc(r)}</option>`).join('');
+  const types=Object.keys(TYPE_LABEL).filter(t=>MOTIFS.some(m=>m.type===t));
+  typeFilter.innerHTML='<option value="">All types</option>'+types.map(t=>`<option value="${t}">${TYPE_LABEL[t]}</option>`).join('');
+  aboutText.innerHTML=`${MOTIFS.length} motifs, redrawn onto the 13 × 13 and 13 × 28 stitch fields. Motifs are reinterpretations informed by the <a href="https://tirazain.com/" target="_blank" rel="noopener">Tirazain</a> archive and the <a href="https://tatreez.app/motifs" target="_blank" rel="noopener">Tatreez.app</a> library; follow each card's source link for the original chart.`;
+  renderFilters();
+})();
+
+regen();
+</script>
+</body>
+</html>

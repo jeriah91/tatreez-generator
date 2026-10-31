@@ -1,0 +1,14 @@
+{
+  "name": "tatreez-generator",
+  "private": true,
+  "scripts": {
+    "build": "python3 pipeline/build.py",
+    "fit": "python3 pipeline/run_fit.py && python3 pipeline/borders.py && python3 pipeline/build.py",
+    "audit": "python3 pipeline/symaudit.py",
+    "shot": "node tools/shot.js",
+    "balance": "node tools/bal.js"
+  },
+  "devDependencies": {
+    "playwright": "^1.47.0"
+  }
+}

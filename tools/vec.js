@@ -1,0 +1,10 @@
+const { chromium } = require('playwright');const fs=require('fs');
+(async()=>{const b=await chromium.launch();const p=await b.newPage({viewport:{width:1000,height:800}});
+const svg=fs.readFileSync(process.argv[2],'utf8');await p.setContent('<body style="margin:0">'+svg+'</body>');
+const r=await p.evaluate(()=>{const out=[];document.querySelectorAll('path').forEach(e=>{const bb=e.getBoundingClientRect();if(bb.width<0.5||bb.width>60)return;
+const f=getComputedStyle(e).fill;if(f==='none'||!f)return;out.push([+(bb.x+bb.width/2).toFixed(2),+(bb.y+bb.height/2).toFixed(2),+bb.width.toFixed(2),+bb.height.toFixed(2),f])});return out});
+fs.writeFileSync(process.argv[3],JSON.stringify(r));
+const sz={};r.forEach(q=>{const k=q[2].toFixed(1)+'x'+q[3].toFixed(1);sz[k]=(sz[k]||0)+1});
+console.log(r.length,Object.entries(sz).sort((a,b)=>b[1]-a[1]).slice(0,8));
+const fc={};r.forEach(q=>fc[q[4]]=(fc[q[4]]||0)+1);console.log(fc);
+await b.close();})();
