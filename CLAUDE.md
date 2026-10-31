@@ -58,6 +58,9 @@ Single-page generator for modular Palestinian tatreez (cross-stitch) composition
 ### Layout
 - Responsive: desktop has a settings sidebar beside the canvas; at ≤820px it becomes one scrolling page with the composition pinned on top, Shuffle/Download pinned at the bottom, catalogue filters folded behind "Group & filter", and short tab labels. Long-press a module on touch screens = Shift-click (recolour). Keep inputs ≥16px on mobile (stops iOS zoom) and no horizontal overflow.
 
+### Branding
+- Palestine Cultural Festival logo, source `reference/brand/PCF - Wide.pdf`. `data/brand/logo-mark.svg` = the colour mark (header + favicon); `data/brand/logo-full-black.svg` = full logo in one colour (`currentColor`, set to the palette black) in the site footer. `build.py` inlines both. Don't recolour or redraw the logo.
+
 ### Output
 - One SVG download. Groups: `#composition > #field, #border`; each module is its own `<g>` with an id like `NN-[border-side-]kind-motifid` and `data-*` metadata.
 

@@ -37,5 +37,8 @@ rest=json.load(open(DATA('stitch.json')))['rest']
 import importlib.util
 spec=importlib.util.spec_from_file_location('inv',os.path.join(here,'inventory_src.py'));inv=importlib.util.module_from_spec(spec);spec.loader.exec_module(inv)
 s=open(os.path.join(ROOT,'src','app.html')).read().replace('__MOTIFS__',json.dumps(ok,ensure_ascii=False)).replace('__STITCH_REST__',json.dumps(rest)).replace('__INVENTORY__',json.dumps(inv.INV,ensure_ascii=False)).replace('__KAWAR_INV__',json.dumps(inv.KAWAR_INV,ensure_ascii=False)).replace('__BORDERS__',open(DATA('borders.json')).read())
+import urllib.parse
+LM=open(DATA(os.path.join('brand','logo-mark.svg'))).read(); LF=open(DATA(os.path.join('brand','logo-full-black.svg'))).read()
+s=s.replace('__LOGO_MARK__',LM).replace('__LOGO_FULL__',LF).replace('__FAVICON__','data:image/svg+xml,'+urllib.parse.quote(LM))
 (os.makedirs(os.path.join(ROOT,'dist'),exist_ok=True) or open(os.path.join(ROOT,'dist','index.html'),'w')).write(s)
 print(len(ok),'motifs;',sum(m['size']=='tall' for m in ok),'tall;',sum(m['size'] in('large','largetall') for m in ok),'large;',len(untraced),'untraced excluded')
