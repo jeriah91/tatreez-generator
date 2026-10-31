@@ -2,7 +2,8 @@
 # area = embroidery area as grouped in Kawar & Nasir, "Palestinian Embroidery" (2021)
 # city = historical town / village named by the source.
 T='https://tatreez.app/motifs/'
-KAWAR='Kawar & Nasir, Palestinian Embroidery (2021), p.18–19'
+KAWAR18='Kawar & Nasir, Palestinian Embroidery (2021), p.18'
+KAWAR19='Kawar & Nasir, Palestinian Embroidery (2021), p.19'
 
 NAJMA=["...1.....1...","...11...11...","...111.111...","111.11.11.111",".111.1.1.111.","2.111.1.111.2","22...1.1...22","2.111.1.111.2",".111.1.1.111.","111.11.11.111","...111.111...","...11...11...","...1.....1..."]
 
@@ -21,12 +22,12 @@ SPEC=[
  dict(id='fab34bee',name='Four Eggs in a Pan',arabic="Arba' Beidat fi al-Maqla · اربع بيضات في المقلاة",type='object',area='Ramallah',city='Ramallah',size='tall',
       url=T+'fab34bee-eefd-4dff-b037-7e1472b92a59/arba-beidat-f-al-maqla-four-eggs-in-a-pan-ramallah',note='Pan with handle, always upright.'),
  dict(id='kawar-palm',kawar=(0,(0,0,8,27)),name='Palm Tree',arabic='Nakhla · نخلة',type='plant',area='Ramallah',city='Ramallah',size='tall',
-      url=None,source=KAWAR,note='The book’s typical Ramallah pattern; one palm column taken from the repeat.'),
+      url=None,source=KAWAR18,note='The book’s typical Ramallah pattern; one palm column taken from the repeat.'),
  dict(id='kawar-cypress-ramallah',kawar=(11,None),name='Cypress Tree',arabic='Saru · سرو',type='plant',area='Ramallah',city='Ramallah',size='tall',
-      url=None,source=KAWAR,note='Ramallah variant of the cypress; always upright.'),
+      url=None,source=KAWAR19,note='Ramallah variant of the cypress; always upright.'),
  # ---------------- HEBRON ----------------
  dict(id='kawar-cypress-hebron',kawar=(7,(0,0,12,27)),name='Cypress Tree',arabic='Saru · سرو',type='plant',area='Hebron',city='Hebron (al-Khalil)',size='tall',
-      url=None,source=KAWAR,note='Hebron cypress, one full repeat of the column.'),
+      url=None,source=KAWAR19,note='Hebron cypress, one full repeat of the column.'),
  dict(id='2404bb07',name='Houses',arabic='Beyout · بيوت',type='architecture',area='Hebron',city='Hebron (al-Khalil)',size='tall',tile=(0,5,28),crop=(0,0,12,5),
       url=T+'2404bb07-0a50-49e8-a980-576677918655/beyout-houses-1-hebron',note='Stacked house blocks.'),
  dict(id='473cc4d4',name='Glass',arabic="Ka's · كاس",type='object',area='Hebron',city='Hebron (al-Khalil)',size='tall',
@@ -43,7 +44,7 @@ SPEC=[
       url=T+'5399f5a7-b0cc-4937-a686-0f0b485ab236/khiyam-al-basha-pashas-tents-hebron',note='Centre unit of the tent square.'),
  # ---------------- GAZA ----------------
  dict(id='kawar-cypress-gaza',kawar=(9,None),name='Cypress Tree',arabic='Saru · سرو',type='plant',area='Gaza',city='Gaza',size='tall',
-      url=None,source=KAWAR,note='Gaza cypress; the source of the supplied tall artwork.'),
+      url=None,source=KAWAR19,note='Gaza cypress; the source of the supplied tall artwork.'),
  dict(id='146f7877',name='Cypress Tree',arabic='Sarwa Ghazza · سروة غزة',type='plant',area='Gaza',city='Gaza',size='tall',
       url=T+'146f7877-0a9d-43c9-ba9c-a554ed2e4e5a/sarwa-cypress-tree-gaza-gaza',note='Slender Gaza cypress.'),
  dict(id='bdad9684',name='Railway',arabic='Sikkat Hadeed · سكة حديد',type='object',area='Gaza',city='Gaza',size='tall',
@@ -69,7 +70,7 @@ SPEC=[
       url=T+'debe4cb6-3f40-4395-bb5f-3aee67c31043/qrs-disc-8-bethlehem',note='Star disc with diamond corners.'),
  # ---------------- BEERSHEBA & SINAI ----------------
  dict(id='kawar-cypress-beersheba',kawar=(2,None),name='Cypress Tree',arabic='Saru · سرو',type='plant',area='Beersheba & Sinai',city='Beersheba (Bir al-Saba’)',size='tall',
-      url=None,source=KAWAR,note='The book’s typical Beersheba pattern: split two-colour cypress.'),
+      url=None,source=KAWAR18,note='The book’s typical Beersheba pattern: split two-colour cypress.'),
  dict(id='02e8eb3c',name='False Tree',arabic='Shajar Kathib · شجر كاذب',type='plant',area='Beersheba & Sinai',city='Beersheba (Bir al-Saba’)',size='tall',
       url=T+'02e8eb3c-f99a-4d44-9044-3892b4e1986a/shajar-katheb-false-tree-beersheba',note='Branching tree, always upright.'),
  dict(id='ff761fc8',name='Flowers',arabic='Azhar · أزهار',type='plant',area='Beersheba & Sinai',city='Beersheba (Bir al-Saba’)',size='tall',crop=(0,0,12,21),
@@ -80,7 +81,7 @@ SPEC=[
       url=T+'ebf4fd94-d92d-4030-bd4d-47ceaf05b939/qurs-al-nojoum-disc-of-stars-1-beersheba',note='Eight-pointed star disc.'),
  # ---------------- JAFFA ----------------
  dict(id='kawar-cypress-jaffa',kawar=(8,None),name='Cypress Tree',arabic='Saru · سرو',type='plant',area='Jaffa',city='Jaffa (Yafa)',size='tall',
-      url=None,source=KAWAR,note='Jaffa cypress: broad stepped cone.'),
+      url=None,source=KAWAR19,note='Jaffa cypress: broad stepped cone.'),
  dict(id='07c0c91e',name='Squares of Feathers',arabic="'Irq Reesh Tarbee' · عرق ريش تربيع",type='geometric',area='Jaffa',city='Jaffa (Yafa)',size='tall',
       url=T+'07c0c91e-e748-439a-8299-0648eebdabbc/irq-reesh-tarbee-squares-of-feathers-jaffa',note='Feather squares stacked in a column.'),
  dict(id='1962ccc1',name='Bald Trees',arabic="Shajar Aqra' · شجر اقرع",type='plant',area='Jaffa',city='Jaffa (Yafa)',size='tall',crop=(1,0,11,21),
@@ -123,9 +124,9 @@ SPEC=[
       url=T+'abf960f1-2203-4841-aa1d-956ed6f8d0d7/fanar-lighthouse-jaffa',note='The full four-quadrant lighthouse field.'),
  # ---------------- LARGE TALL: 2x4 modules (28 x 58) ----------------
  dict(id='kawar-palm-large',kawar=(0,None),name='Palm Trees',arabic='Nakhl · نخل',type='plant',area='Ramallah',city='Ramallah',size='largetall',
-      url=None,source=KAWAR,note='The book’s typical Ramallah pattern: palm columns in repeat.'),
+      url=None,source=KAWAR18,note='The book’s typical Ramallah pattern: palm columns in repeat.'),
  dict(id='kawar-cypress-jaffa-large',kawar=(8,None),name='Cypress Tree',arabic='Saru · سرو',type='plant',area='Jaffa',city='Jaffa (Yafa)',size='largetall',
-      url=None,source=KAWAR,note='Jaffa cypress at full size: broad stepped cone on a patterned base.'),
+      url=None,source=KAWAR19,note='Jaffa cypress at full size: broad stepped cone on a patterned base.'),
  dict(id='supplied-asset-29',supplied='asset-29',name='Flowering tree',arabic=None,type='plant',area='Supplied artwork',city=None,size='largetall',
-      url=None,source='Supplied artwork (Asset 29)',note='Your supplied artwork, one motif of the pair, made exactly symmetric.'),
+      url=None,source=None,note='Your supplied artwork, one motif of the pair, made exactly symmetric. UNTRACED: excluded until its source chart is identified.'),
 ]

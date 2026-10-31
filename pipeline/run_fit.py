@@ -3,12 +3,25 @@ ROOT=_os.path.dirname(_os.path.dirname(_os.path.abspath(__file__)))
 DATA=lambda *p:_os.path.join(ROOT,'data',*p)
 import json,sys
 sys.path.insert(0,_os.path.dirname(_os.path.abspath(__file__)))
-from fit import fit, shape_sym
+from fit import fit, shape_sym, SIZES
 from spec import SPEC
 from PIL import Image, ImageDraw
 C=json.load(open(DATA('charts.json')))
 P10={o['i']:o for o in json.load(open(DATA('kawar','p10_grids.json')))}
 SUP=json.load(open(DATA('supplied_charts.json')))
+def derivation(s,src):
+    # plain-language trace from the source chart to the fitted motif
+    if s.get('derivation'): return s['derivation']
+    h,w=len(src),max(len(r) for r in src); parts=[]
+    if 'rows' in s: parts.append(f'Transcribed from the {w}×{h} source chart')
+    elif 'chart' in s: parts.append(f'The whole {w}×{h} source chart, kept close to full size')
+    else: parts.append(f'Source chart {w}×{h}')
+    c=s.get('crop')
+    if c: parts.append(f'cropped to cols {c[0]}–{c[2]}, rows {c[1]}–{c[3]}')
+    if s.get('tile'): parts.append('repeat unit tiled to fill the field')
+    W,H=SIZES[s['size']]
+    parts.append(f'fitted to {W}×{H} by repeating or dropping whole stitch lines (fit.py), symmetry made exact')
+    return '; '.join(parts)+'.'
 out=[]
 for s in SPEC:
     if 'rows' in s: src=s['rows']
@@ -20,7 +33,9 @@ for s in SPEC:
     m={k:v for k,v in s.items() if k not in('rows','kawar','crop','tile','chart','supplied')}
     m['id']=('tz-' if not s['id'].startswith(('kawar','supplied')) else '')+s['id']
     m['source']=s.get('source') or m.get('url')
+    m['derivation']=derivation(s,src)
     m['inventory_status']='seen'
+    if 'supplied' in s and SUP[s['supplied']].get('status')=='untraced': m['source']=None; m['inventory_status']='untraced'
     m['grid']=g; m['region']=s['area']; m['symmetric']=shape_sym(g); m['axes']=fit.axes
     out.append(m)
 # STAR SIDE-ORNAMENT RULE: extra stitches beside a star run vertically and join the star's arms
@@ -30,8 +45,10 @@ def star_sides(m):
     if m['id']=='tz-76f399ae':          # Ramallah Najma: bar from upper arm tip to lower arm tip, drop the sideways pair
         for y in range(4,9): _set(g,y,0,'2'); _set(g,y,12,'2')
         _set(g,6,1,'.'); _set(g,6,11,'.')
+        m['derivation']+=' Side ornaments redrawn as vertical bars joined to the star arms (owner rule).'
     if m['id']=='tz-ebf4fd94':          # Beersheba disc of stars: join the two side clusters into one vertical bar
         _set(g,6,0,g[5][0]); _set(g,6,12,g[5][12])
+        m['derivation']+=' Side clusters joined into one vertical bar (owner rule).'
     m['grid']=g
 FACES={'tz-caf919e0':'left','tz-f12ff0d4':'right'}  # direction of asymmetric motifs used as facing pairs
 for m in out:

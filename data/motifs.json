@@ -11,6 +11,7 @@
 "url": "https://tatreez.app/motifs/76f399ae-c622-4e54-9b05-e24f060cc65c/najma-star-ramallah",
 "note": "Eight-pointed star; appears across all areas in varying forms.",
 "source": "https://tatreez.app/motifs/76f399ae-c622-4e54-9b05-e24f060cc65c/najma-star-ramallah",
+"derivation": "Transcribed from the 13×13 source chart; fitted to 13×13 by repeating or dropping whole stitch lines (fit.py), symmetry made exact. Side ornaments redrawn as vertical bars joined to the star arms (owner rule).",
 "inventory_status": "seen",
 "grid": [
 "...1.....1...",
@@ -45,6 +46,7 @@
 "url": "https://tatreez.app/motifs/caf919e0-1dd8-4059-b4d3-bcdecd128f7f/hamama-pigeon-1-ramallah",
 "note": "Pigeon in profile.",
 "source": "https://tatreez.app/motifs/caf919e0-1dd8-4059-b4d3-bcdecd128f7f/hamama-pigeon-1-ramallah",
+"derivation": "Source chart 16×18; fitted to 13×13 by repeating or dropping whole stitch lines (fit.py), symmetry made exact.",
 "inventory_status": "seen",
 "grid": [
 "..11.........",
@@ -77,6 +79,7 @@
 "url": "https://tatreez.app/motifs/b484db90-47b8-47bf-ac7c-582cc026a56a/azhar-flowers-13-ramallah",
 "note": "Stacked flower heads on a single stem.",
 "source": "https://tatreez.app/motifs/b484db90-47b8-47bf-ac7c-582cc026a56a/azhar-flowers-13-ramallah",
+"derivation": "Source chart 13×29; fitted to 13×28 by repeating or dropping whole stitch lines (fit.py), symmetry made exact.",
 "inventory_status": "seen",
 "grid": [
 "2.2.1...1.2.2",
@@ -125,6 +128,7 @@
 "url": "https://tatreez.app/motifs/b1f09e24-622d-4abd-bfde-335873e60dac/nafnoof-border-17-ramallah",
 "note": "Repeating border unit, tiled vertically.",
 "source": "https://tatreez.app/motifs/b1f09e24-622d-4abd-bfde-335873e60dac/nafnoof-border-17-ramallah",
+"derivation": "Source chart 13×30; cropped to cols 0–12, rows 0–5; repeat unit tiled to fill the field; fitted to 13×28 by repeating or dropping whole stitch lines (fit.py), symmetry made exact.",
 "inventory_status": "seen",
 "grid": [
 "11.11.1.11.11",
@@ -173,6 +177,7 @@
 "url": "https://tatreez.app/motifs/18a2598c-a6c8-4b18-9083-4c00f8a0b03f/nojoum-stars-ramallah",
 "note": "Radiating star with rays.",
 "source": "https://tatreez.app/motifs/18a2598c-a6c8-4b18-9083-4c00f8a0b03f/nojoum-stars-ramallah",
+"derivation": "Source chart 23×23; fitted to 13×13 by repeating or dropping whole stitch lines (fit.py), symmetry made exact.",
 "inventory_status": "seen",
 "grid": [
 "....1.1.1....",
@@ -207,6 +212,7 @@
 "url": "https://tatreez.app/motifs/fab34bee-eefd-4dff-b037-7e1472b92a59/arba-beidat-f-al-maqla-four-eggs-in-a-pan-ramallah",
 "note": "Pan with handle, always upright.",
 "source": "https://tatreez.app/motifs/fab34bee-eefd-4dff-b037-7e1472b92a59/arba-beidat-f-al-maqla-four-eggs-in-a-pan-ramallah",
+"derivation": "Source chart 15×23; fitted to 13×28 by repeating or dropping whole stitch lines (fit.py), symmetry made exact.",
 "inventory_status": "seen",
 "grid": [
 ".....111.....",
@@ -253,8 +259,9 @@
 "city": "Ramallah",
 "size": "tall",
 "url": null,
-"source": "Kawar & Nasir, Palestinian Embroidery (2021), p.18–19",
+"source": "Kawar & Nasir, Palestinian Embroidery (2021), p.18",
 "note": "The book’s typical Ramallah pattern; one palm column taken from the repeat.",
+"derivation": "Source chart 36×53; cropped to cols 0–8, rows 0–27; fitted to 13×28 by repeating or dropping whole stitch lines (fit.py), symmetry made exact.",
 "inventory_status": "seen",
 "grid": [
 "111.1.1.1.111",
@@ -301,8 +308,9 @@
 "city": "Ramallah",
 "size": "tall",
 "url": null,
-"source": "Kawar & Nasir, Palestinian Embroidery (2021), p.18–19",
+"source": "Kawar & Nasir, Palestinian Embroidery (2021), p.19",
 "note": "Ramallah variant of the cypress; always upright.",
+"derivation": "Source chart 15×29; fitted to 13×28 by repeating or dropping whole stitch lines (fit.py), symmetry made exact.",
 "inventory_status": "seen",
 "grid": [
 "...111.111...",
@@ -349,8 +357,9 @@
 "city": "Hebron (al-Khalil)",
 "size": "tall",
 "url": null,
-"source": "Kawar & Nasir, Palestinian Embroidery (2021), p.18–19",
+"source": "Kawar & Nasir, Palestinian Embroidery (2021), p.19",
 "note": "Hebron cypress, one full repeat of the column.",
+"derivation": "Source chart 13×53; cropped to cols 0–12, rows 0–27; fitted to 13×28 by repeating or dropping whole stitch lines (fit.py), symmetry made exact.",
 "inventory_status": "seen",
 "grid": [
 "...1.1.1.1...",
@@ -399,6 +408,7 @@
 "url": "https://tatreez.app/motifs/2404bb07-0a50-49e8-a980-576677918655/beyout-houses-1-hebron",
 "note": "Stacked house blocks.",
 "source": "https://tatreez.app/motifs/2404bb07-0a50-49e8-a980-576677918655/beyout-houses-1-hebron",
+"derivation": "Source chart 13×21; cropped to cols 0–12, rows 0–5; repeat unit tiled to fill the field; fitted to 13×28 by repeating or dropping whole stitch lines (fit.py), symmetry made exact.",
 "inventory_status": "seen",
 "grid": [
 "111111.111111",
@@ -447,6 +457,7 @@
 "url": "https://tatreez.app/motifs/473cc4d4-768c-43ad-9d44-c15e8e08cac8/kaas-glass-hebron",
 "note": "Goblet on a stem; always upright.",
 "source": "https://tatreez.app/motifs/473cc4d4-768c-43ad-9d44-c15e8e08cac8/kaas-glass-hebron",
+"derivation": "Source chart 15×26; fitted to 13×28 by repeating or dropping whole stitch lines (fit.py), symmetry made exact.",
 "inventory_status": "seen",
 "grid": [
 "2.11.111.11.2",
@@ -495,6 +506,7 @@
 "url": "https://tatreez.app/motifs/80375730-0528-4226-b153-4cbe8f0eccb2/al-marwaha-mansha-the-fan-swatter-hebron",
 "note": "Fan / swatter.",
 "source": "https://tatreez.app/motifs/80375730-0528-4226-b153-4cbe8f0eccb2/al-marwaha-mansha-the-fan-swatter-hebron",
+"derivation": "Source chart 19×25; fitted to 13×28 by repeating or dropping whole stitch lines (fit.py), symmetry made exact.",
 "inventory_status": "seen",
 "grid": [
 "...1.1.1.1...",
@@ -543,6 +555,7 @@
 "url": "https://tatreez.app/motifs/2955b91b-efe8-411b-a8b6-42d30c1ac826/nakhl-palm-trees-1-hebron",
 "note": "Three tiers of fronds on a trunk.",
 "source": "https://tatreez.app/motifs/2955b91b-efe8-411b-a8b6-42d30c1ac826/nakhl-palm-trees-1-hebron",
+"derivation": "Source chart 17×25; fitted to 13×28 by repeating or dropping whole stitch lines (fit.py), symmetry made exact.",
 "inventory_status": "seen",
 "grid": [
 "2.2...1...2.2",
@@ -591,6 +604,7 @@
 "url": "https://tatreez.app/motifs/10514236-e5d3-4e54-ba36-78e79cf8f55f/maya-mlaqiya-baadha-connected-water-1-hebron",
 "note": "Running water band.",
 "source": "https://tatreez.app/motifs/10514236-e5d3-4e54-ba36-78e79cf8f55f/maya-mlaqiya-baadha-connected-water-1-hebron",
+"derivation": "Source chart 13×37; cropped to cols 0–12, rows 0–12; fitted to 13×13 by repeating or dropping whole stitch lines (fit.py), symmetry made exact.",
 "inventory_status": "seen",
 "grid": [
 "111111111.1.1",
@@ -624,6 +638,7 @@
 "url": "https://tatreez.app/motifs/1d674d15-888b-44b1-a6f2-449edf1df182/eyoon-al-baqar-cow-eyes-hebron",
 "note": "Centre medallion of the cow-eyes field.",
 "source": "https://tatreez.app/motifs/1d674d15-888b-44b1-a6f2-449edf1df182/eyoon-al-baqar-cow-eyes-hebron",
+"derivation": "Source chart 33×33; cropped to cols 10–22, rows 10–22; fitted to 13×13 by repeating or dropping whole stitch lines (fit.py), symmetry made exact.",
 "inventory_status": "seen",
 "grid": [
 "1.112212211.1",
@@ -658,6 +673,7 @@
 "url": "https://tatreez.app/motifs/5399f5a7-b0cc-4937-a686-0f0b485ab236/khiyam-al-basha-pashas-tents-hebron",
 "note": "Centre unit of the tent square.",
 "source": "https://tatreez.app/motifs/5399f5a7-b0cc-4937-a686-0f0b485ab236/khiyam-al-basha-pashas-tents-hebron",
+"derivation": "Source chart 31×31; cropped to cols 8–22, rows 8–22; fitted to 13×13 by repeating or dropping whole stitch lines (fit.py), symmetry made exact.",
 "inventory_status": "seen",
 "grid": [
 "211111.111112",
@@ -690,8 +706,9 @@
 "city": "Gaza",
 "size": "tall",
 "url": null,
-"source": "Kawar & Nasir, Palestinian Embroidery (2021), p.18–19",
+"source": "Kawar & Nasir, Palestinian Embroidery (2021), p.19",
 "note": "Gaza cypress; the source of the supplied tall artwork.",
+"derivation": "Source chart 15×36; fitted to 13×28 by repeating or dropping whole stitch lines (fit.py), symmetry made exact.",
 "inventory_status": "seen",
 "grid": [
 "...1.1.1.1...",
@@ -740,6 +757,7 @@
 "url": "https://tatreez.app/motifs/146f7877-0a9d-43c9-ba9c-a554ed2e4e5a/sarwa-cypress-tree-gaza-gaza",
 "note": "Slender Gaza cypress.",
 "source": "https://tatreez.app/motifs/146f7877-0a9d-43c9-ba9c-a554ed2e4e5a/sarwa-cypress-tree-gaza-gaza",
+"derivation": "Source chart 9×26; fitted to 13×28 by repeating or dropping whole stitch lines (fit.py), symmetry made exact.",
 "inventory_status": "seen",
 "grid": [
 "......1......",
@@ -788,6 +806,7 @@
 "url": "https://tatreez.app/motifs/bdad9684-4dec-4f5c-9246-88d88bafe8bc/sikat-hadeed-railway-gaza",
 "note": "Railway, named for the line through Gaza.",
 "source": "https://tatreez.app/motifs/bdad9684-4dec-4f5c-9246-88d88bafe8bc/sikat-hadeed-railway-gaza",
+"derivation": "Source chart 13×28; fitted to 13×28 by repeating or dropping whole stitch lines (fit.py), symmetry made exact.",
 "inventory_status": "seen",
 "grid": [
 "1111.....1111",
@@ -836,6 +855,7 @@
 "url": "https://tatreez.app/motifs/f12ff0d4-08e3-4e0a-8aa7-e53446f796a2/shakla-al-tayr-bird-13-gaza",
 "note": "Small bird.",
 "source": "https://tatreez.app/motifs/f12ff0d4-08e3-4e0a-8aa7-e53446f796a2/shakla-al-tayr-bird-13-gaza",
+"derivation": "Source chart 11×12; fitted to 13×13 by repeating or dropping whole stitch lines (fit.py), symmetry made exact.",
 "inventory_status": "seen",
 "grid": [
 "11111........",
@@ -868,6 +888,7 @@
 "url": "https://tatreez.app/motifs/13f6a1af-b9b2-44b9-ae2c-a040b956ab79/sanabel-crops-gaza",
 "note": "One wheat stalk from the row of three.",
 "source": "https://tatreez.app/motifs/13f6a1af-b9b2-44b9-ae2c-a040b956ab79/sanabel-crops-gaza",
+"derivation": "Source chart 25×19; cropped to cols 0–8, rows 0–18; fitted to 13×28 by repeating or dropping whole stitch lines (fit.py), symmetry made exact.",
 "inventory_status": "seen",
 "grid": [
 "....1.1.1....",
@@ -916,6 +937,7 @@
 "url": "https://tatreez.app/motifs/caf13f92-3c74-442a-a45e-20fac04e1d3f/qurs-al-qabbeh-qabbeh-disc-gaza",
 "note": "Disc from the chest panel (qabbeh); centre diamond.",
 "source": "https://tatreez.app/motifs/caf13f92-3c74-442a-a45e-20fac04e1d3f/qurs-al-qabbeh-qabbeh-disc-gaza",
+"derivation": "Source chart 23×23; cropped to cols 5–17, rows 5–17; fitted to 13×13 by repeating or dropping whole stitch lines (fit.py), symmetry made exact.",
 "inventory_status": "seen",
 "grid": [
 "11.111.111.11",
@@ -950,6 +972,7 @@
 "url": "https://tatreez.app/motifs/5c7713a3-49fc-4421-a0bb-884013f102ea/qamar-al-domoo-moon-tears-gaza",
 "note": "Centre star of the moon medallion.",
 "source": "https://tatreez.app/motifs/5c7713a3-49fc-4421-a0bb-884013f102ea/qamar-al-domoo-moon-tears-gaza",
+"derivation": "Source chart 29×29; cropped to cols 8–20, rows 8–20; fitted to 13×13 by repeating or dropping whole stitch lines (fit.py), symmetry made exact.",
 "inventory_status": "seen",
 "grid": [
 "....11111....",
@@ -984,6 +1007,7 @@
 "url": "https://tatreez.app/motifs/16503779-9f3e-4aa1-99e0-a001fc672832/qrs-disc-4-gaza",
 "note": "Framed flower disc.",
 "source": "https://tatreez.app/motifs/16503779-9f3e-4aa1-99e0-a001fc672832/qrs-disc-4-gaza",
+"derivation": "Source chart 23×23; cropped to cols 3–19, rows 3–19; fitted to 13×13 by repeating or dropping whole stitch lines (fit.py), symmetry made exact.",
 "inventory_status": "seen",
 "grid": [
 "2...22.22...2",
@@ -1018,6 +1042,7 @@
 "url": "https://tatreez.app/motifs/341b229b-ba28-43f3-9bcf-16f012463bae/qamar-beit-lahem-moon-of-bethlehem-bethlehem",
 "note": "One moon from the stacked column.",
 "source": "https://tatreez.app/motifs/341b229b-ba28-43f3-9bcf-16f012463bae/qamar-beit-lahem-moon-of-bethlehem-bethlehem",
+"derivation": "Source chart 13×41; cropped to cols 0–12, rows 0–12; fitted to 13×13 by repeating or dropping whole stitch lines (fit.py), symmetry made exact.",
 "inventory_status": "seen",
 "grid": [
 "...1.....1...",
@@ -1052,6 +1077,7 @@
 "url": "https://tatreez.app/motifs/fa85da31-e25d-475e-8fdb-6cc36087833c/qrs-disc-8-bethlehem",
 "note": "Centre of the pinwheel disc.",
 "source": "https://tatreez.app/motifs/fa85da31-e25d-475e-8fdb-6cc36087833c/qrs-disc-8-bethlehem",
+"derivation": "Source chart 21×21; cropped to cols 4–16, rows 4–16; fitted to 13×13 by repeating or dropping whole stitch lines (fit.py), symmetry made exact.",
 "inventory_status": "seen",
 "grid": [
 "1.223.1.322.1",
@@ -1086,6 +1112,7 @@
 "url": "https://tatreez.app/motifs/725792a6-1c64-4998-bb20-0c41f61d327c/qowara-hijab-vase-amulet-1-bethlehem",
 "note": "Vase holding three flowers; protective amulet.",
 "source": "https://tatreez.app/motifs/725792a6-1c64-4998-bb20-0c41f61d327c/qowara-hijab-vase-amulet-1-bethlehem",
+"derivation": "Source chart 21×21; fitted to 13×28 by repeating or dropping whole stitch lines (fit.py), symmetry made exact.",
 "inventory_status": "seen",
 "grid": [
 "1.1.1.1.1.1.1",
@@ -1134,6 +1161,7 @@
 "url": "https://tatreez.app/motifs/debe4cb6-3f40-4395-bb5f-3aee67c31043/qrs-disc-8-bethlehem",
 "note": "Star disc with diamond corners.",
 "source": "https://tatreez.app/motifs/debe4cb6-3f40-4395-bb5f-3aee67c31043/qrs-disc-8-bethlehem",
+"derivation": "Source chart 25×25; cropped to cols 3–21, rows 3–21; fitted to 13×13 by repeating or dropping whole stitch lines (fit.py), symmetry made exact.",
 "inventory_status": "seen",
 "grid": [
 "...22...22...",
@@ -1166,8 +1194,9 @@
 "city": "Beersheba (Bir al-Saba’)",
 "size": "tall",
 "url": null,
-"source": "Kawar & Nasir, Palestinian Embroidery (2021), p.18–19",
+"source": "Kawar & Nasir, Palestinian Embroidery (2021), p.18",
 "note": "The book’s typical Beersheba pattern: split two-colour cypress.",
+"derivation": "Source chart 19×35; fitted to 13×28 by repeating or dropping whole stitch lines (fit.py), symmetry made exact.",
 "inventory_status": "seen",
 "grid": [
 "..1.11.11.1..",
@@ -1216,6 +1245,7 @@
 "url": "https://tatreez.app/motifs/02e8eb3c-f99a-4d44-9044-3892b4e1986a/shajar-katheb-false-tree-beersheba",
 "note": "Branching tree, always upright.",
 "source": "https://tatreez.app/motifs/02e8eb3c-f99a-4d44-9044-3892b4e1986a/shajar-katheb-false-tree-beersheba",
+"derivation": "Source chart 11×21; fitted to 13×28 by repeating or dropping whole stitch lines (fit.py), symmetry made exact.",
 "inventory_status": "seen",
 "grid": [
 "1.1...1...1.1",
@@ -1264,6 +1294,7 @@
 "url": "https://tatreez.app/motifs/ff761fc8-771d-46ee-aa33-c73bbfdfc33d/azhar-flowers-21-beersheba",
 "note": "Two flower units stacked.",
 "source": "https://tatreez.app/motifs/ff761fc8-771d-46ee-aa33-c73bbfdfc33d/azhar-flowers-21-beersheba",
+"derivation": "Source chart 13×33; cropped to cols 0–12, rows 0–21; fitted to 13×28 by repeating or dropping whole stitch lines (fit.py), symmetry made exact.",
 "inventory_status": "seen",
 "grid": [
 "..1...1...1..",
@@ -1312,6 +1343,7 @@
 "url": "https://tatreez.app/motifs/bd1d1ecc-1d23-4bcb-a77b-e76d0ca97cf2/warda-kaas-flower-glass-beersheba",
 "note": "Flower in a glass.",
 "source": "https://tatreez.app/motifs/bd1d1ecc-1d23-4bcb-a77b-e76d0ca97cf2/warda-kaas-flower-glass-beersheba",
+"derivation": "Source chart 17×19; fitted to 13×28 by repeating or dropping whole stitch lines (fit.py), symmetry made exact.",
 "inventory_status": "seen",
 "grid": [
 "1.1...1...1.1",
@@ -1360,6 +1392,7 @@
 "url": "https://tatreez.app/motifs/ebf4fd94-d92d-4030-bd4d-47ceaf05b939/qurs-al-nojoum-disc-of-stars-1-beersheba",
 "note": "Eight-pointed star disc.",
 "source": "https://tatreez.app/motifs/ebf4fd94-d92d-4030-bd4d-47ceaf05b939/qurs-al-nojoum-disc-of-stars-1-beersheba",
+"derivation": "Source chart 27×27; cropped to cols 4–22, rows 4–22; fitted to 13×13 by repeating or dropping whole stitch lines (fit.py), symmetry made exact. Side clusters joined into one vertical bar (owner rule).",
 "inventory_status": "seen",
 "grid": [
 "1.1.22.22.1.1",
@@ -1392,8 +1425,9 @@
 "city": "Jaffa (Yafa)",
 "size": "tall",
 "url": null,
-"source": "Kawar & Nasir, Palestinian Embroidery (2021), p.18–19",
+"source": "Kawar & Nasir, Palestinian Embroidery (2021), p.19",
 "note": "Jaffa cypress: broad stepped cone.",
+"derivation": "Source chart 25×49; fitted to 13×28 by repeating or dropping whole stitch lines (fit.py), symmetry made exact.",
 "inventory_status": "seen",
 "grid": [
 "...1111111...",
@@ -1442,6 +1476,7 @@
 "url": "https://tatreez.app/motifs/07c0c91e-e748-439a-8299-0648eebdabbc/irq-reesh-tarbee-squares-of-feathers-jaffa",
 "note": "Feather squares stacked in a column.",
 "source": "https://tatreez.app/motifs/07c0c91e-e748-439a-8299-0648eebdabbc/irq-reesh-tarbee-squares-of-feathers-jaffa",
+"derivation": "Source chart 13×27; fitted to 13×28 by repeating or dropping whole stitch lines (fit.py), symmetry made exact.",
 "inventory_status": "seen",
 "grid": [
 "12111.1.11121",
@@ -1490,6 +1525,7 @@
 "url": "https://tatreez.app/motifs/1962ccc1-e57a-4806-9202-38282977d7dd/shajar-aqra-bald-trees-jaffa",
 "note": "Two trees from the row of three.",
 "source": "https://tatreez.app/motifs/1962ccc1-e57a-4806-9202-38282977d7dd/shajar-aqra-bald-trees-jaffa",
+"derivation": "Source chart 19×22; cropped to cols 1–11, rows 0–21; fitted to 13×28 by repeating or dropping whole stitch lines (fit.py), symmetry made exact.",
 "inventory_status": "seen",
 "grid": [
 "111211.112111",
@@ -1538,6 +1574,7 @@
 "url": "https://tatreez.app/motifs/abf960f1-2203-4841-aa1d-956ed6f8d0d7/fanar-lighthouse-jaffa",
 "note": "Centre of the four-quadrant lighthouse field.",
 "source": "https://tatreez.app/motifs/abf960f1-2203-4841-aa1d-956ed6f8d0d7/fanar-lighthouse-jaffa",
+"derivation": "Source chart 27×27; cropped to cols 7–19, rows 7–19; fitted to 13×13 by repeating or dropping whole stitch lines (fit.py), symmetry made exact.",
 "inventory_status": "seen",
 "grid": [
 "11.1.1.1.1.11",
@@ -1572,6 +1609,7 @@
 "url": "https://tatreez.app/motifs/8415a8e5-5eee-4ea2-87b0-a1b812f3e0ed/sarwa-cypress-tree-yazoor-yazoor",
 "note": "Yazur cypress (one tree of the pair).",
 "source": "https://tatreez.app/motifs/8415a8e5-5eee-4ea2-87b0-a1b812f3e0ed/sarwa-cypress-tree-yazoor-yazoor",
+"derivation": "Source chart 26×34; cropped to cols 15–25, rows 0–33; fitted to 13×28 by repeating or dropping whole stitch lines (fit.py), symmetry made exact.",
 "inventory_status": "seen",
 "grid": [
 "......1......",
@@ -1620,6 +1658,7 @@
 "url": "https://tatreez.app/motifs/63cc98c7-7f48-4a5f-88b7-88345bbe37a9/shajaret-hob-love-tree-jerusalem",
 "note": "Tree of love with crowned top.",
 "source": "https://tatreez.app/motifs/63cc98c7-7f48-4a5f-88b7-88345bbe37a9/shajaret-hob-love-tree-jerusalem",
+"derivation": "Source chart 13×36; cropped to cols 0–12, rows 0–23; fitted to 13×28 by repeating or dropping whole stitch lines (fit.py), symmetry made exact.",
 "inventory_status": "seen",
 "grid": [
 "......3......",
@@ -1668,6 +1707,7 @@
 "url": "https://tatreez.app/motifs/033b8636-e327-45c2-979c-5c36964c83bc/bayt-al-naml-ant-nest-jerusalem",
 "note": "Diagonal ant-nest band.",
 "source": "https://tatreez.app/motifs/033b8636-e327-45c2-979c-5c36964c83bc/bayt-al-naml-ant-nest-jerusalem",
+"derivation": "Source chart 13×19; cropped to cols 0–12, rows 3–15; fitted to 13×13 by repeating or dropping whole stitch lines (fit.py), symmetry made exact.",
 "inventory_status": "seen",
 "grid": [
 "......1111...",
@@ -1699,6 +1739,7 @@
 "url": "https://tatreez.app/motifs/6e992ebf-51d6-499b-ae1f-eb7fdf513342/shakla-nakhl-palm-trees-6-galilee",
 "note": "Stacked palm crowns.",
 "source": "https://tatreez.app/motifs/6e992ebf-51d6-499b-ae1f-eb7fdf513342/shakla-nakhl-palm-trees-6-galilee",
+"derivation": "Source chart 15×27; fitted to 13×28 by repeating or dropping whole stitch lines (fit.py), symmetry made exact.",
 "inventory_status": "seen",
 "grid": [
 "1111.1.1.1111",
@@ -1747,6 +1788,7 @@
 "url": "https://tatreez.app/motifs/d902bd23-27ff-46cf-b1ac-cd31c77fbd64/sarwa-cypress-tree-galilee-1-galilee",
 "note": "Two columns of small Galilee cypresses.",
 "source": "https://tatreez.app/motifs/d902bd23-27ff-46cf-b1ac-cd31c77fbd64/sarwa-cypress-tree-galilee-1-galilee",
+"derivation": "Source chart 31×28; cropped to cols 1–11, rows 0–27; fitted to 13×28 by repeating or dropping whole stitch lines (fit.py), symmetry made exact.",
 "inventory_status": "seen",
 "grid": [
 "1.1.11.11.1.1",
@@ -1795,6 +1837,7 @@
 "url": "https://tatreez.app/motifs/7aea9971-a7b2-4cc9-951b-f7a5bd19325a/sarwa-cypress-tree-ashdod-1-ashdod",
 "note": "Isdud cypress with seeded crown.",
 "source": "https://tatreez.app/motifs/7aea9971-a7b2-4cc9-951b-f7a5bd19325a/sarwa-cypress-tree-ashdod-1-ashdod",
+"derivation": "Source chart 13×26; fitted to 13×28 by repeating or dropping whole stitch lines (fit.py), symmetry made exact.",
 "inventory_status": "seen",
 "grid": [
 "......3......",
@@ -1843,6 +1886,7 @@
 "url": "https://tatreez.app/motifs/29d45d7d-1e55-4ebd-845a-ffe872d21781/al-balaat-the-tiles-ashdod",
 "note": "One tile from the four-tile square.",
 "source": "https://tatreez.app/motifs/29d45d7d-1e55-4ebd-845a-ffe872d21781/al-balaat-the-tiles-ashdod",
+"derivation": "Source chart 27×27; cropped to cols 0–12, rows 0–12; fitted to 13×13 by repeating or dropping whole stitch lines (fit.py), symmetry made exact.",
 "inventory_status": "seen",
 "grid": [
 "1111111111111",
@@ -1877,6 +1921,7 @@
 "url": "https://tatreez.app/motifs/f2f296e3-a8fa-4337-9484-c8f508afe5a4/mosht-comb-yibna",
 "note": "Comb (one of the pair).",
 "source": "https://tatreez.app/motifs/f2f296e3-a8fa-4337-9484-c8f508afe5a4/mosht-comb-yibna",
+"derivation": "Source chart 30×25; cropped to cols 1–13, rows 0–24; fitted to 13×28 by repeating or dropping whole stitch lines (fit.py), symmetry made exact.",
 "inventory_status": "seen",
 "grid": [
 "......3......",
@@ -1925,6 +1970,7 @@
 "url": "https://tatreez.app/motifs/8eb97ae3-cc4e-43bb-b6e8-3f8ba1822b5c/qamar-najma-moon-star-al-ramla",
 "note": "Moon and star medallion.",
 "source": "https://tatreez.app/motifs/8eb97ae3-cc4e-43bb-b6e8-3f8ba1822b5c/qamar-najma-moon-star-al-ramla",
+"derivation": "Source chart 23×23; cropped to cols 4–18, rows 4–18; fitted to 13×13 by repeating or dropping whole stitch lines (fit.py), symmetry made exact.",
 "inventory_status": "seen",
 "grid": [
 "1.122212221.1",
@@ -1959,6 +2005,7 @@
 "url": "https://tatreez.app/motifs/1d674d15-888b-44b1-a6f2-449edf1df182/eyoon-al-baqar-cow-eyes-hebron",
 "note": "The full cow-eyes field: centre medallion with four corner eyes.",
 "source": "https://tatreez.app/motifs/1d674d15-888b-44b1-a6f2-449edf1df182/eyoon-al-baqar-cow-eyes-hebron",
+"derivation": "The whole 33×33 source chart, kept close to full size; fitted to 28×28 by repeating or dropping whole stitch lines (fit.py), symmetry made exact.",
 "inventory_status": "seen",
 "grid": [
 "111.1.11333.1111.33311.1.111",
@@ -2008,6 +2055,7 @@
 "url": "https://tatreez.app/motifs/5399f5a7-b0cc-4937-a686-0f0b485ab236/khiyam-al-basha-pashas-tents-hebron",
 "note": "The full tent square with its four framed quarters.",
 "source": "https://tatreez.app/motifs/5399f5a7-b0cc-4937-a686-0f0b485ab236/khiyam-al-basha-pashas-tents-hebron",
+"derivation": "The whole 31×31 source chart, kept close to full size; fitted to 28×28 by repeating or dropping whole stitch lines (fit.py), symmetry made exact.",
 "inventory_status": "seen",
 "grid": [
 "1.121111111111111111111121.1",
@@ -2057,6 +2105,7 @@
 "url": "https://tatreez.app/motifs/5c7713a3-49fc-4421-a0bb-884013f102ea/qamar-al-domoo-moon-tears-gaza",
 "note": "The whole moon medallion in its frame.",
 "source": "https://tatreez.app/motifs/5c7713a3-49fc-4421-a0bb-884013f102ea/qamar-al-domoo-moon-tears-gaza",
+"derivation": "The whole 29×29 source chart, kept close to full size; fitted to 28×28 by repeating or dropping whole stitch lines (fit.py), symmetry made exact.",
 "inventory_status": "seen",
 "grid": [
 "2222222222222222222222222222",
@@ -2106,6 +2155,7 @@
 "url": "https://tatreez.app/motifs/debe4cb6-3f40-4395-bb5f-3aee67c31043/qrs-disc-8-bethlehem",
 "note": "Star disc with diamond corners, whole.",
 "source": "https://tatreez.app/motifs/debe4cb6-3f40-4395-bb5f-3aee67c31043/qrs-disc-8-bethlehem",
+"derivation": "The whole 25×25 source chart, kept close to full size; fitted to 28×28 by repeating or dropping whole stitch lines (fit.py), symmetry made exact.",
 "inventory_status": "seen",
 "grid": [
 ".............11.............",
@@ -2155,6 +2205,7 @@
 "url": "https://tatreez.app/motifs/29d45d7d-1e55-4ebd-845a-ffe872d21781/al-balaat-the-tiles-ashdod",
 "note": "The four-tile square, whole.",
 "source": "https://tatreez.app/motifs/29d45d7d-1e55-4ebd-845a-ffe872d21781/al-balaat-the-tiles-ashdod",
+"derivation": "The whole 27×27 source chart, kept close to full size; fitted to 28×28 by repeating or dropping whole stitch lines (fit.py), symmetry made exact.",
 "inventory_status": "seen",
 "grid": [
 "1111111111111..1111111111111",
@@ -2204,6 +2255,7 @@
 "url": "https://tatreez.app/motifs/abf960f1-2203-4841-aa1d-956ed6f8d0d7/fanar-lighthouse-jaffa",
 "note": "The full four-quadrant lighthouse field.",
 "source": "https://tatreez.app/motifs/abf960f1-2203-4841-aa1d-956ed6f8d0d7/fanar-lighthouse-jaffa",
+"derivation": "The whole 27×27 source chart, kept close to full size; fitted to 28×28 by repeating or dropping whole stitch lines (fit.py), symmetry made exact.",
 "inventory_status": "seen",
 "grid": [
 "1.1.1.1.1.1.1..1.1.1.1.1.1.1",
@@ -2251,8 +2303,9 @@
 "city": "Ramallah",
 "size": "largetall",
 "url": null,
-"source": "Kawar & Nasir, Palestinian Embroidery (2021), p.18–19",
+"source": "Kawar & Nasir, Palestinian Embroidery (2021), p.18",
 "note": "The book’s typical Ramallah pattern: palm columns in repeat.",
+"derivation": "Source chart 36×53; fitted to 28×58 by repeating or dropping whole stitch lines (fit.py), symmetry made exact.",
 "inventory_status": "seen",
 "grid": [
 "1.1.1.1.1.1.1..1.1.1.1.1.1.1",
@@ -2329,8 +2382,9 @@
 "city": "Jaffa (Yafa)",
 "size": "largetall",
 "url": null,
-"source": "Kawar & Nasir, Palestinian Embroidery (2021), p.18–19",
+"source": "Kawar & Nasir, Palestinian Embroidery (2021), p.19",
 "note": "Jaffa cypress at full size: broad stepped cone on a patterned base.",
+"derivation": "Source chart 25×49; fitted to 28×58 by repeating or dropping whole stitch lines (fit.py), symmetry made exact.",
 "inventory_status": "seen",
 "grid": [
 "..........11111111..........",
@@ -2407,9 +2461,10 @@
 "city": null,
 "size": "largetall",
 "url": null,
-"source": "Supplied artwork (Asset 29)",
-"note": "Your supplied artwork, one motif of the pair, made exactly symmetric.",
-"inventory_status": "seen",
+"source": null,
+"note": "Your supplied artwork, one motif of the pair, made exactly symmetric. UNTRACED: excluded until its source chart is identified.",
+"derivation": "Source chart 24×53; fitted to 28×58 by repeating or dropping whole stitch lines (fit.py), symmetry made exact.",
+"inventory_status": "untraced",
 "grid": [
 ".........2.121121.2.........",
 "..........1.1221.1..........",

@@ -42,14 +42,22 @@ Single-page generator for modular Palestinian tatreez (cross-stitch) composition
 - One module deep. Runs are segmented symmetrically from each run's own centre. Corners use C4-symmetric motifs.
 - Border strips use equal spacing; pictorial units stay upright.
 
-### Sources
-- Motifs come from Tatreez.app / Tirazain charts and the Kawar & Nasir PDF (source of truth), catalogued by region, historical city and type.
+### Sources and provenance (hard rule)
+- **Never invent a pattern.** Every motif and border band must be designed from a real, historical Palestinian chart and be explainable: which chart, which part of it, and how it was adapted. Approximation is acceptable (cropping, fitting to the grid, dropping/repeating whole stitch lines, recolouring, simplifying) as long as the source pattern is real.
+- **Two sources of truth:**
+  1. **Tatreez.app** — the Tirazain archive of charted motifs (https://tatreez.app/motifs), catalogued by region and town. Cite the chart's URL.
+  2. **Widad Kamel Kawar & Tania Tamari Nasir, *Palestinian Embroidery: Traditional “Fallahi” Cross-stitch* (2021)** — charts on pp.18–19. Cite `Kawar & Nasir, Palestinian Embroidery (2021), p.N`.
+- **When in doubt, look up the real pattern** in these sources before drawing anything. Do not fill gaps from memory or guesswork; if a chart can't be found, leave the motif out.
+- Each motif records `source` (a Tatreez.app URL or a Kawar & Nasir page) and `derivation` (plain-language trace from source chart to fitted motif; `run_fit.py` builds it from the spec's crop/tile/fit steps, or set `derivation=` in `spec.py`). Any hand edit to a fitted grid (e.g. `star_sides`) must append to `derivation`.
+- **Enforced by the build:** `pipeline/build.py` excludes any motif whose `source` isn't one of the two sources and fails on an untraced border band. It writes `PROVENANCE.md`, the register of every pattern in use, its source and derivation, plus the excluded untraced list.
+- Owner-supplied artwork is held to the same rule. It is used only once matched to a source chart (the match is recorded in `data/supplied.json` `derivation`). Untraced artwork stays in `data/` with `inventory_status: untraced` / `status: untraced`; currently excluded: `asset-29`, `supplied-rosette`, `supplied-dove`.
+- Compositional additions required by other rules (connector stems, 2-stitch gaps, borders' spacing) are layout, not new patterns.
 - Don't commit the source PDF.
-- Owner artwork charts live in `data/supplied_charts.json` (e.g. `asset-29`, from `reference/artwork/Asset 29.svg`, one motif of the pair, made exactly symmetric) and are referenced from `spec.py` with `supplied=`. Tatreez.app charts can be reused for a second size with `chart=`.
+- Owner artwork charts live in `data/supplied_charts.json` (e.g. `asset-29`, from `reference/artwork/Asset 29.svg`) and are referenced from `spec.py` with `supplied=`. Tatreez.app charts can be reused for a second size with `chart=`.
 
 ### Output
 - One SVG download. Groups: `#composition > #field, #border`; each module is its own `<g>` with an id like `NN-[border-side-]kind-motifid` and `data-*` metadata.
 
 ## Workflow
 - Edit the UI/logic in `src/app.html`. Edit the motif list in `pipeline/spec.py`, then `npm run fit`.
-- After changes, run `npm run shot` (no console errors), `npm run balance` and `npm run rules` (full rules check across thousands of seeds/settings, measured on the rendered grid). Stress-test new rules across many seeds and sizes; report violations of fill, symmetry, clash and contrast.
+- After changes, run `npm run shot` (no console errors), `npm run balance` and `npm run rules` (full rules check across thousands of seeds/settings, measured on the rendered grid). Stress-test new rules across many seeds and sizes; report violations of fill, symmetry, clash and contrast. Check the build output for `UNTRACED` lines and review `PROVENANCE.md` when adding motifs.
