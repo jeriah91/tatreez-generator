@@ -1,6 +1,6 @@
 """Fit source charts onto the generator's stitch fields.
 
-Square field: 13 x 13.  Tall field: 13 x 28.
+Fields (W x H): square 13x13, tall 13x28, large 28x28 (2x2 modules), largetall 28x58 (2x4 modules).
 Steps per motif (from SPEC):  crop -> optional repeat-tile -> width reduction -> height reduction -> centre pad.
 Reduction removes the line (column / row) that is most similar to its neighbour, so repeated
 structure (duplicate columns of a thick trunk, doubled stepping rows) is merged first and the
@@ -8,6 +8,9 @@ motif's silhouette is kept. Left-right symmetric motifs lose columns in mirrored
 Colours are re-indexed by frequency: 1 = main thread, 2 = first accent, 3 = everything else.
 """
 import json
+
+# stitch field per motif size: n modules span 13*n + 2*(n-1) stitches (the 2-stitch gutter is absorbed)
+SIZES={'square':(13,13),'tall':(13,28),'large':(28,28),'largetall':(28,58)}
 
 def trim(g):
     rows=[i for i,r in enumerate(g) if set(r)!={'.'}]
@@ -80,7 +83,7 @@ def fit(rows, size, crop=None, tile=None, keep_colours=False, max_rows=None):
     if crop:
         x0,y0,x1,y1=crop; g=[r[x0:x1+1] for r in g[y0:y1+1]]
     g=trim(g)
-    W=13; H=13 if size=='square' else 28
+    W,H=SIZES[size]
     if tile:   # repeat rows [a..b] until height reaches limit
         a,b,limit=tile; unit=g[a:b+1]; head=g[:a]; out=head[:]
         while len(out)+len(unit)<=limit: out+=unit
@@ -88,7 +91,7 @@ def fit(rows, size, crop=None, tile=None, keep_colours=False, max_rows=None):
     src=trim(g)
     g=reduce_width(g,W)
     g=reduce_height(g,H)
-    g,axes=enforce_symmetry(g,src)
+    g,axes=enforce_symmetry(g,src,W,H)
     if size=='square' and 'tb' not in axes and len(g)<H and len(g)%2==0: pass  # pictorial: keep natural height
     g=fill_field(g,W,H)          # FILL RULE: the motif touches all four sides of the stitch field
     if not keep_colours: g=recolour(g)
@@ -105,13 +108,15 @@ def axis_score(g,axis):
             if a!='.' or b!='.': tot+=1; ok+=(a!='.')==(b!='.')
     return ok/max(tot,1)
 
-def make_odd(g,axis):
-    """A symmetric motif needs an odd extent to sit exactly centred on the 13-stitch field."""
-    if axis=='lr' and len(g[0])%2==0:
-        c=len(g[0])//2; g=[r[:c]+r[c+1:] for r in g]
-    if axis=='tb' and len(g)%2==0:
-        c=len(g)//2; g=g[:c]+g[c+1:]
-    return g
+def make_odd(g,axis,target=13):
+    """A symmetric motif needs the same parity as its field to sit exactly centred: odd on 13, even on 28/58.
+    Odd -> even doubles the centre line; even -> odd drops it."""
+    ext=len(g[0]) if axis=='lr' else len(g)
+    if ext%2==target%2: return g
+    c=ext//2
+    if axis=='lr':
+        return [r[:c]+r[c+1:] for r in g] if ext%2==0 else [r[:c+1]+r[c:] for r in g]
+    return g[:c]+g[c+1:] if ext%2==0 else g[:c+1]+g[c:]
 
 def mirror(g,axis):
     """Copy the fuller half onto the other half (shape and colour)."""
@@ -131,12 +136,12 @@ def colour_balanced(g):
     c4=len(g)==len(g[0]) and rot90(g)==g
     return lr or c4
 
-def enforce_symmetry(g, src, tol=0.9):
+def enforce_symmetry(g, src, W=13, H=13, tol=0.9):
     """Keep every axis the source has. Returns (grid, axes)."""
     g=trim(g); src=trim(src); axes=[]
     for axis in ('lr','tb'):
         if axis_score(src,axis)>=tol or axis_score(g,axis)>=tol:
-            g=make_odd(g,axis); g=mirror(g,axis); axes.append(axis)
+            g=make_odd(g,axis,W if axis=='lr' else H); g=mirror(g,axis); axes.append(axis)
     if 'lr' in axes and not colour_balanced(g):
         g=[r[:(len(r)+1)//2]+r[:len(r)//2][::-1] for r in g]
     return g, axes
@@ -153,7 +158,17 @@ def _line_cost(lines, j):
     empty = all(ch=='.' for ch in a)
     return (min(c) if c else 99) + (50 if empty else 0) - 0.1*sum(ch!='.' for ch in a)
 
-def expand_width(g, target):
+def _dup_list(lst, js):
+    out=[]
+    for k,x in enumerate(lst):
+        out.append(x)
+        if k in js: out.append(x)
+    return out
+
+def expand_width(g, target, spread=False):
+    # spread (large fields): each duplicated line, its copy and its neighbours cost more next time,
+    # so growth is shared across the motif instead of thickening one stem; the centre axis is avoided
+    wt=[0]*len(g[0])
     while len(g[0])<target:
         W=len(g[0]); sym=shape_sym(g) and all(r==r[::-1] for r in g); need=target-W
         cols=[col(g,j) for j in range(W)]; best=None
@@ -162,12 +177,16 @@ def expand_width(g, target):
             if sym and need>=2 and j>=m: continue
             if sym and need==1 and j!=W//2: continue
             cost=_line_cost(cols,j) + (_line_cost(cols,m) if sym and need>=2 else 0)
+            if spread:
+                near=max(wt[max(0,j-1):j+2]); cost+=6*near + (40 if abs(j-(W-1)/2)<2 else 0)
             js={j,m} if sym and need>=2 else {j}
             if best is None or cost<best[0]: best=(cost,js)
         g=_dup_cols(g,best[1])
+        if spread: wt=_dup_list([w+(1 if k in best[1] else 0) for k,w in enumerate(wt)],best[1])
     return g
 
-def expand_height(g, target):
+def expand_height(g, target, spread=False):
+    wt=[0]*len(g)
     while len(g)<target:
         H=len(g); sym=all(g[i]==g[H-1-i] for i in range(H)); need=target-H; best=None
         for i in range(H):
@@ -175,8 +194,10 @@ def expand_height(g, target):
             if sym and need>=2 and i>=m: continue
             if sym and need==1 and i!=H//2: continue
             cost=_line_cost(g,i)+(_line_cost(g,m) if sym and need>=2 else 0)
+            if spread: cost+=6*max(wt[max(0,i-1):i+2])
             rs={i,m} if sym and need>=2 else {i}
             if best is None or cost<best[0]: best=(cost,rs)
+        if spread: wt=_dup_list([w+(1 if k in best[1] else 0) for k,w in enumerate(wt)],best[1])
         out=[]
         for k,r in enumerate(g):
             out.append(r)
@@ -185,8 +206,8 @@ def expand_height(g, target):
     return g
 
 def fill_field(g, W, H):
-    g=trim(g)
+    g=trim(g); spread=W>13
     if len(g[0])>W: g=reduce_width(g,W)
     if len(g)>H: g=reduce_height(g,H)
-    g=expand_width(g,W); g=expand_height(g,H)
+    g=expand_width(g,W,spread); g=expand_height(g,H,spread)
     return g

@@ -8,15 +8,17 @@ from spec import SPEC
 from PIL import Image, ImageDraw
 C=json.load(open(DATA('charts.json')))
 P10={o['i']:o for o in json.load(open(DATA('kawar','p10_grids.json')))}
+SUP=json.load(open(DATA('supplied_charts.json')))
 out=[]
 for s in SPEC:
     if 'rows' in s: src=s['rows']
     elif 'kawar' in s:
         i,crop=s['kawar']; src=P10[i]['grid']; s=dict(s,crop=crop)
-    else: src=C[s['id']]['rows']
+    elif 'supplied' in s: src=SUP[s['supplied']]['rows']
+    else: src=C[s.get('chart',s['id'])]['rows']
     g=fit(src,s['size'],crop=s.get('crop'),tile=s.get('tile'))
-    m={k:v for k,v in s.items() if k not in('rows','kawar','crop','tile')}
-    m['id']=('tz-' if not s['id'].startswith('kawar') else '')+s['id']
+    m={k:v for k,v in s.items() if k not in('rows','kawar','crop','tile','chart','supplied')}
+    m['id']=('tz-' if not s['id'].startswith(('kawar','supplied')) else '')+s['id']
     m['source']=s.get('source') or m.get('url')
     m['inventory_status']='seen'
     m['grid']=g; m['region']=s['area']; m['symmetric']=shape_sym(g); m['axes']=fit.axes
@@ -52,4 +54,4 @@ for m in out:
 W=cols*(13*cell+10); rowsN=(len(cards)+cols-1)//cols
 sheet=Image.new('RGB',(W,rowsN*(28*cell+34)),'white')
 for i,c in enumerate(cards): sheet.paste(c,((i%cols)*(13*cell+10),(i//cols)*(28*cell+34)))
-sheet.save(_os.path.join(ROOT,'out','fit_sheet.png')); print(len(out),'motifs', sheet.size)
+_os.makedirs(_os.path.join(ROOT,'out'),exist_ok=True); sheet.save(_os.path.join(ROOT,'out','fit_sheet.png')); print(len(out),'motifs', sheet.size)
