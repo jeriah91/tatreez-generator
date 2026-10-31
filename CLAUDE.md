@@ -55,6 +55,9 @@ Single-page generator for modular Palestinian tatreez (cross-stitch) composition
 - Don't commit the source PDF.
 - Owner artwork charts live in `data/supplied_charts.json` (e.g. `asset-29`, from `reference/artwork/Asset 29.svg`) and are referenced from `spec.py` with `supplied=`. Tatreez.app charts can be reused for a second size with `chart=`.
 
+### Layout
+- Responsive: desktop has a settings sidebar beside the canvas; at ≤820px it becomes one scrolling page with the composition pinned on top, Shuffle/Download pinned at the bottom, catalogue filters folded behind "Group & filter", and short tab labels. Long-press a module on touch screens = Shift-click (recolour). Keep inputs ≥16px on mobile (stops iOS zoom) and no horizontal overflow.
+
 ### Output
 - One SVG download. Groups: `#composition > #field, #border`; each module is its own `<g>` with an id like `NN-[border-side-]kind-motifid` and `data-*` metadata.
 

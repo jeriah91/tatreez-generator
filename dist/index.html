@@ -87,7 +87,57 @@ input[type=range]{width:100%;accent-color:var(--ink)}
 .linkbtn{background:none;border:0;padding:0;color:var(--muted);font:inherit;font-size:12px;cursor:pointer;text-decoration:underline}
 .about{max-width:760px}
 .about p{margin:0 0 10px}
-@media (max-width:820px){main{flex-direction:column}.view.on{flex-direction:column}aside{width:auto;border-right:0;border-bottom:1px solid var(--line);max-height:46vh}.canvas{min-height:50vh}}
+.filtertoggle,.mhint{display:none}
+.kawar-row{flex-direction:row;gap:14px;align-items:baseline}.kawar-row b{min-width:220px}.kawar-row .note{margin-left:auto}
+/* ---------- mobile: one scrolling page, preview pinned on top, actions pinned at the bottom ---------- */
+@media (max-width:820px){
+  html,body{height:auto}
+  body{display:block;overflow-x:hidden}
+  header{flex-wrap:wrap;gap:10px;padding:10px 14px 0;position:relative}
+  header h1{font-size:15px}
+  nav.tabs{margin:0 -14px;padding:0 14px 10px;width:calc(100% + 28px);overflow-x:auto;scrollbar-width:none;-webkit-overflow-scrolling:touch}
+  nav.tabs::-webkit-scrollbar{display:none}
+  nav.tabs button{white-space:nowrap;padding:8px 14px;flex:1 0 auto;text-transform:none}
+  nav.tabs .lg{display:none}
+  nav.tabs button[data-view=cat]{text-transform:capitalize}
+  main{display:block}
+  .view.on{display:flex;flex-direction:column}
+  aside,.cat-side{width:auto;max-height:none;overflow:visible;border-right:0;border-bottom:1px solid var(--line);padding:14px 16px 20px}
+  /* generator: composition stays in view while settings scroll underneath */
+  #view-gen .stage{order:-1;position:sticky;top:0;z-index:5;background:var(--paper);border-bottom:1px solid var(--line);box-shadow:0 6px 14px -10px rgba(35,31,32,.35)}
+  #view-gen .canvas{flex:none;height:min(40vh,86vw);padding:10px}
+  .canvas svg{box-shadow:0 1px 2px rgba(0,0,0,.08),0 8px 22px rgba(35,31,32,.14);-webkit-touch-callout:none;-webkit-user-select:none;user-select:none}
+  .statusbar{gap:4px 12px;padding:7px 14px;font-size:11px}
+  .statusbar>span:not(:first-child):not(:last-child){display:none}
+  .statusbar>span:last-child{font-size:0;gap:8px!important}.statusbar>span:last-child>*{font-size:11px}
+  .balance{width:90px}
+  .legend{gap:6px}
+  .mhint{display:block}
+  /* 16px inputs stop iOS zooming in on focus; bigger touch targets */
+  input[type=number],select,input[type=text]{font-size:16px;padding:9px 10px}
+  .seg button{padding:10px 4px;font-size:13px}
+  .check{font-size:14px;margin:10px 0}
+  .check input{width:18px;height:18px}
+  input[type=range]{height:28px}
+  .linkbtn{font-size:13px;padding:4px 0}
+  #borderOpts .field>div[style]{flex-wrap:wrap;gap:6px 14px!important}
+  .btns{position:sticky;bottom:0;z-index:4;margin:18px -16px -20px;padding:10px 16px calc(10px + env(safe-area-inset-bottom));background:var(--panel);border-top:1px solid var(--line)}
+  .btn{padding:13px 10px;font-size:14px}
+  /* catalogue: filters fold away behind one button */
+  .filtertoggle{display:flex;width:100%;justify-content:space-between;align-items:center;border:1px solid var(--line);background:#fff;border-radius:10px;padding:11px 14px;font:600 14px/1 inherit;color:var(--ink);cursor:pointer}
+  .filtertoggle::after{content:'▾';transition:transform .15s}
+  .cat-side.open .filtertoggle::after{transform:rotate(180deg)}
+  .cat-side:not(.open)>:not(.filtertoggle){display:none!important}
+  .cat-side.open .filtertoggle{margin-bottom:6px}
+  .cat-main{padding:16px 14px 48px;overflow:visible}
+  .cat-main h3{font-size:18px;margin-top:22px}
+  .grid-cards{grid-template-columns:repeat(auto-fill,minmax(150px,1fr));gap:10px}
+  .card{padding:8px;border-radius:10px}
+  .card .thumb{height:120px}
+  .kawar-row{flex-direction:column;gap:2px}.kawar-row b{min-width:0}.kawar-row .note{margin-left:0}
+  .about .note[style*=columns]{columns:1!important}
+}
+@media (max-width:380px){.grid-cards{grid-template-columns:1fr 1fr}.card .thumb{height:100px}}
 </style>
 </head>
 <body>
@@ -95,8 +145,8 @@ input[type=range]{width:100%;accent-color:var(--ink)}
   <h1><span class="mark"><i style="background:var(--green)"></i><i style="background:var(--red)"></i><i style="background:var(--black)"></i><i style="background:var(--white);outline:1px solid var(--line)"></i></span>Tatreez Module Generator</h1>
   <nav class="tabs" role="tablist">
     <button role="tab" aria-selected="true" data-view="gen">Generator</button>
-    <button role="tab" aria-selected="false" data-view="cat">Pattern catalogue</button>
-    <button role="tab" aria-selected="false" data-view="src">Sources &amp; inventory</button>
+    <button role="tab" aria-selected="false" data-view="cat"><span class="lg">Pattern </span>catalogue</button>
+    <button role="tab" aria-selected="false" data-view="src">Sources<span class="lg"> &amp; inventory</span></button>
   </nav>
 </header>
 <main>
@@ -207,7 +257,7 @@ input[type=range]{width:100%;accent-color:var(--ink)}
       <button class="btn primary" id="download">Download SVG</button>
     </div>
     <p class="hint" id="dlMsg" aria-live="polite" style="min-height:1em;color:var(--ink)"></p>
-    <p class="hint">Click a module to swap its motif · Shift-click to change its colourway.</p>
+    <p class="hint">Click a module to swap its motif · Shift-click (or long-press on touch screens) to change its colourway.</p>
   </aside>
   <div class="stage">
     <div class="canvas" id="canvas"></div>
@@ -218,6 +268,7 @@ input[type=range]{width:100%;accent-color:var(--ink)}
 <!-- ================= CATALOGUE ================= -->
 <section class="view" id="view-cat">
   <aside class="cat-side">
+    <button class="filtertoggle" id="filterToggle" aria-expanded="false">Group &amp; filter</button>
     <h2>Group by</h2>
     <div class="seg" id="groupBy">
       <button data-v="region" aria-pressed="true">Region</button>
@@ -854,13 +905,25 @@ outW.addEventListener('input',()=>{const v=parseFloat(outW.value);if(v>0){S.outW
 outUnit.addEventListener('change',()=>{S.outUnit=outUnit.value;updateSizeInfo()});
 seed.addEventListener('input',()=>{S.seed=seed.value||'seed';regen()});
 document.getElementById('shuffle').addEventListener('click',()=>{const w=['olive','sarw','qamar','reesh','nakhleh','zaytoun','burtuqal','hilal','najmeh','warda','sunbuleh','qandil','mushut','aqrab','jamal'];const r=Math.random;S.seed=w[r()*w.length|0]+'-'+(1000+(r()*9000|0));seed.value=S.seed;regen()});
-document.getElementById('canvas').addEventListener('click',e=>{
-  const g=e.target.closest('g.mod'); if(!g) return; const i=+g.dataset.i;
-  const key=LAST.mods[i].border?'border':i;
+function bumpModule(g,colour){
+  const i=+g.dataset.i; const key=LAST.mods[i].border?'border':i;
   const ov=S.overrides[key]||(S.overrides[key]={});
-  if(e.shiftKey) ov.colourSalt=(ov.colourSalt||0)+1; else ov.motifSalt=(ov.motifSalt||0)+1;
+  if(colour) ov.colourSalt=(ov.colourSalt||0)+1; else ov.motifSalt=(ov.motifSalt||0)+1;
   generate();
+}
+let press=null; // long-press on touch = Shift-click (recolour)
+document.getElementById('canvas').addEventListener('click',e=>{
+  if(press&&press.fired){press=null;return}
+  const g=e.target.closest('g.mod'); if(g) bumpModule(g,e.shiftKey);
 });
+document.getElementById('canvas').addEventListener('pointerdown',e=>{
+  if(e.pointerType!=='touch') return; const g=e.target.closest('g.mod'); if(!g) return;
+  press={x:e.clientX,y:e.clientY,fired:false,t:setTimeout(()=>{press.fired=true;navigator.vibrate&&navigator.vibrate(12);bumpModule(g,true)},500)};
+});
+['pointerup','pointercancel'].forEach(t=>document.getElementById('canvas').addEventListener(t,()=>{if(press&&!press.fired){clearTimeout(press.t);press=null}}));
+document.getElementById('canvas').addEventListener('pointermove',e=>{if(press&&!press.fired&&Math.hypot(e.clientX-press.x,e.clientY-press.y)>10){clearTimeout(press.t);press=null}});
+document.getElementById('canvas').addEventListener('contextmenu',e=>{if(e.target.closest('g.mod'))e.preventDefault()});
+filterToggle.addEventListener('click',()=>{const side=filterToggle.parentElement;side.classList.toggle('open');filterToggle.setAttribute('aria-expanded',side.classList.contains('open'))});
 let DL=null; // platform download capability when hosted as an artifact
 try{ if(window.claude && claude.use) claude.use('downloads').then(d=>{DL=d}).catch(()=>{}); }catch(e){}
 function flash(msg){const el=document.getElementById('dlMsg');el.textContent=msg;clearTimeout(flash.t);flash.t=setTimeout(()=>el.textContent='',4000)}
@@ -994,7 +1057,7 @@ function renderSources(){
   <p class="hint" style="max-width:760px">Every pattern is traced from a real, historical chart in one of two sources of truth, and nothing is invented: a chart may be cropped, recoloured or approximated to fit the stitch field, but each motif card says which chart it came from and how it was adapted. Motifs that cannot yet be traced to either source are left out. <b>Widad Kamel Kawar &amp; Tania Tamari Nasir, <i>Palestinian Embroidery: Traditional “Fallahi” Cross-stitch</i> (2021)</b> is the reference for each area’s signature pattern: the cypress variants on pp.18–19 were extracted stitch-for-stitch from the book’s vector charts. <b>The Tirazain archive on Tatreez.app</b> supplies charted motifs by town and village; ${MOTIFS.filter(m=>m.url).length} of those charts were read cell by cell and fitted to 13 × 13 or 13 × 28.</p>
   <p class="hint" style="max-width:760px"><b>How charts were fitted:</b> crop to one representative element (a single tree from a row, the centre of a disc), then merge duplicated rows or columns (thick trunks, doubled stepping) until the motif is 13 wide, keeping left↔right symmetry. Motifs that could not shrink without losing their identity (large birds, the Jaffa amulet, the Gaza pendant, the full Tent of the Pasha) were left out rather than redrawn from guesswork.</p>
   <h4>Kawar &amp; Nasir — charts and samplers reviewed</h4>
-  <div class="grid-cards" style="grid-template-columns:1fr">${KAWAR_INV.map(k=>`<div class="card" style="flex-direction:row;gap:14px;align-items:baseline"><b style="min-width:220px">${esc(k[0])}</b><span>${esc(k[1])}</span><span class="note" style="margin-left:auto">${esc(k[2])}</span></div>`).join('')}</div>
+  <div class="grid-cards" style="grid-template-columns:1fr">${KAWAR_INV.map(k=>`<div class="card kawar-row"><b>${esc(k[0])}</b><span>${esc(k[1])}</span><span class="note">${esc(k[2])}</span></div>`).join('')}</div>
   <h3>Tirazain archive inventory <span style="font:400 13px ui-sans-serif;color:var(--muted)">${total} motifs listed across ${Object.keys(INVENTORY).length} towns, villages and regions</span></h3>
   <p class="hint">Numbered variants are grouped (×n). Ramallah and Hebron pages expose the first 100 entries; follow the area link for the full list.</p>
   ${Object.entries(INVENTORY).map(([r,[n,url,list]])=>`<h4>${esc(r)} · ${n} motifs <a href="${esc(url)}" target="_blank" rel="noopener" style="font-weight:400;text-transform:none;letter-spacing:0">open ↗</a></h4><div class="note" style="columns:3 260px;column-gap:28px;font-size:12px;line-height:1.6">${list.split(';').map(x=>`<div>${esc(x)}</div>`).join('')}</div>`).join('')}`;
