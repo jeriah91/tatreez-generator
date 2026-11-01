@@ -10,7 +10,7 @@ Colours are re-indexed by frequency: 1 = main thread, 2 = first accent, 3 = ever
 import json
 
 # stitch field per motif size: n modules span 13*n + 2*(n-1) stitches (the 2-stitch gutter is absorbed)
-SIZES={'square':(13,13),'tall':(13,28),'large':(28,28),'largetall':(28,58)}
+SIZES={'square':(13,13),'tall':(13,28),'large':(28,28),'largetall':(28,58),'half':(26,26)}
 
 def trim(g):
     rows=[i for i,r in enumerate(g) if set(r)!={'.'}]

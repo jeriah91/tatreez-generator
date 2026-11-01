@@ -94,6 +94,24 @@ input[type=range]{width:100%;accent-color:var(--ink)}
 .about{max-width:760px}
 .about p{margin:0 0 10px}
 .filtertoggle,.mhint{display:none}
+/* module context menu */
+#modmenu{position:fixed;z-index:50;width:340px;max-height:min(560px,calc(100vh - 24px));overflow:auto;background:#fff;border:1px solid var(--line);border-radius:12px;box-shadow:0 18px 50px rgba(35,31,32,.25);padding:10px}
+#modmenu[hidden]{display:none}
+#modmenu .mh{display:flex;gap:8px;align-items:baseline;justify-content:space-between;padding:2px 4px 8px}
+#modmenu .mh b{font-size:13px}
+#modmenu .mh small{color:var(--muted);font-size:11px;text-align:right}
+#modmenu .acts{display:grid;grid-template-columns:1fr 1fr;gap:6px;margin-bottom:8px}
+#modmenu .acts button{border:1px solid var(--line);background:var(--panel);border-radius:8px;padding:8px 6px;font:inherit;font-size:12px;cursor:pointer;color:var(--ink);text-align:left;display:flex;gap:6px;align-items:center}
+#modmenu .acts button:hover,#modmenu .opts button:hover{border-color:var(--ink)}
+#modmenu .acts button.on{background:var(--ink);color:var(--paper);border-color:var(--ink)}
+#modmenu h5{margin:8px 4px 6px;font:600 10.5px/1 ui-sans-serif,system-ui;letter-spacing:.1em;text-transform:uppercase;color:var(--muted)}
+#modmenu .opts{display:grid;grid-template-columns:repeat(auto-fill,minmax(72px,1fr));gap:6px}
+#modmenu .opts button{border:1px solid var(--line);background:#fff;border-radius:8px;padding:4px;cursor:pointer;display:flex;flex-direction:column;align-items:center;gap:3px;font:inherit;font-size:10px;line-height:1.15;color:var(--ink)}
+#modmenu .opts button[aria-current=true]{outline:2px solid var(--ink);outline-offset:-1px}
+#modmenu .opts svg{display:block;height:58px;width:auto;max-width:100%;border-radius:3px}
+#modmenu .opts span{max-width:100%;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+#toast{position:fixed;left:50%;bottom:24px;transform:translateX(-50%);background:var(--ink);color:var(--paper);padding:9px 14px;border-radius:999px;font-size:13px;opacity:0;pointer-events:none;transition:opacity .2s;z-index:60}
+#toast.on{opacity:1}
 .kawar-row{flex-direction:row;gap:14px;align-items:baseline}.kawar-row b{min-width:220px}.kawar-row .note{margin-left:auto}
 /* ---------- mobile: one scrolling page, preview pinned on top, actions pinned at the bottom ---------- */
 @media (max-width:820px){
@@ -147,6 +165,11 @@ input[type=range]{width:100%;accent-color:var(--ink)}
   .kawar-row{flex-direction:column;gap:2px}.kawar-row b{min-width:0}.kawar-row .note{margin-left:0}
   .about .note[style*=columns]{columns:1!important}
 }
+@media (max-width:820px){
+  #modmenu{left:0!important;right:0;top:auto!important;bottom:0;width:auto;max-height:72vh;border-radius:16px 16px 0 0;padding:12px 14px calc(14px + env(safe-area-inset-bottom))}
+  #modmenu .acts button{padding:11px 8px;font-size:13px}
+  #toast{bottom:90px}
+}
 @media (max-width:380px){.grid-cards{grid-template-columns:1fr 1fr}.card .thumb{height:100px}}
 </style>
 </head>
@@ -183,6 +206,17 @@ input[type=range]{width:100%;accent-color:var(--ink)}
         <option value="2,8">Column banner · 2 × 8</option>
       </select>
     </div>
+
+    <h2>PCF mark</h2>
+    <label class="check"><input type="checkbox" id="markOn" checked> Include the PCF mark module</label>
+    <div class="field" id="markOpts">Mark colour
+      <select id="markStyle">
+        <option value="auto">Auto (changes with seed)</option>
+        <option value="single">One colour</option>
+        <option value="full">Full colour on light grounds</option>
+      </select>
+    </div>
+    <p class="hint">One square module carries the Palestine Cultural Festival mark at half the size of the 13-stitch field, framed by a half-scale stitch grid taken from a real disc chart. On off-white the mark is green, black or red (or full colour); on green, black or red it is off-white. Right-click it to choose the frame or place the mark elsewhere.</p>
 
     <h2>Border</h2>
     <label class="check"><input type="checkbox" id="borderOn"> Add border modules</label>
@@ -268,7 +302,8 @@ input[type=range]{width:100%;accent-color:var(--ink)}
       <button class="btn primary" id="download">Download SVG</button>
     </div>
     <p class="hint" id="dlMsg" aria-live="polite" style="min-height:1em;color:var(--ink)"></p>
-    <p class="hint">Click a module to swap its motif · Shift-click (or long-press on touch screens) to change its colourway.</p>
+    <p class="hint">Click a module to shuffle its pattern · Right-click (long-press on touch screens) to pick a pattern or lock modules · Shift-click to try another colourway.</p>
+    <p class="hint" id="lockInfo"></p>
   </aside>
   <div class="stage">
     <div class="canvas" id="canvas"></div>
@@ -306,6 +341,8 @@ input[type=range]{width:100%;accent-color:var(--ink)}
   <p>Tatreez Module Generator. Every pattern is traced from historical charts in the Tirazain archive on Tatreez.app and Kawar &amp; Nasir, <i>Palestinian Embroidery</i> (2021).</p>
 </footer>
 
+<div id="modmenu" role="menu" hidden></div>
+<div id="toast" role="status" aria-live="polite"></div>
 <script>
 /* ============================================================
    DATA
@@ -315,6 +352,8 @@ const INVENTORY = __INVENTORY__;
 const BORDERS = __BORDERS__;
 const KAWAR_INV = __KAWAR_INV__;
 const STITCH_REST = __STITCH_REST__;
+const MARK_FILLS = __MARKFILLS__;   // half-scale rings around the PCF mark, each traced from a real disc chart
+const MARK_PATHS = __MARK_PATHS__;  // the Palestine Cultural Festival mark, viewBox 0 0 193 193, logo colours
 
 
 const PALETTE = [
@@ -380,7 +419,9 @@ const S = {
   stitch:'round', palette:['green','white','black','red'], accents:true,
   region:'', type:'', rotate:true, outW:600, outUnit:'mm', seed:'nakba-1948',
   disabled:new Set(),
-  overrides:{}, // moduleIndex | 'border' -> {motifSalt, colourSalt}
+  overrides:{}, // module key ('c,r' in field coords) | 'border' -> {motifSalt, colourSalt}
+  locks:{},     // 'c,r' -> {c,r,w,h,kind,mark,choice:{how,id}} — kept through Shuffle and setting changes
+  mark:{on:true, style:'auto', pos:null}, // PCF mark module: style auto|single|full; pos = chosen 'c,r' or null (seeded)
   border:{on:false, sides:{top:true,right:true,bottom:true,left:true}, pattern:'auto', corner:'auto'},
 };
 let LAST = null; // last generated composition
@@ -390,9 +431,11 @@ let LAST = null; // last generated composition
    ============================================================ */
 // module kinds: S 1×1 · T 1×2 tall · W 2×1 wide · L 2×2 large · LT 2×4 large tall
 const KIND_NAME={S:'square',T:'tall',W:'wide',L:'large',LT:'large-tall'};
-function tileOnce(cols, rows, share, orient, rng, large){
+function tileOnce(cols, rows, share, orient, rng, large, fixed=[]){
   const occ = Array.from({length:rows},()=>Array(cols).fill(-1));
   const mods=[];
+  // locked modules and the PCF mark module are placed first; everything else tiles around them
+  for(const f of fixed){ const id=mods.length; mods.push({...f}); for(let y=f.r;y<f.r+f.h;y++) for(let x=f.c;x<f.c+f.w;x++) occ[y][x]=id; }
   const p2 = Math.min(.98, share/100 * 1.15); // probability of attempting a double at a free cell
   const pL = Math.min(.7, large/100 * .9);     // probability of attempting a large module at a free cell
   const free=(r0,c0,h,w)=>{ if(r0+h>rows||c0+w>cols) return false; for(let y=r0;y<r0+h;y++) for(let x=c0;x<c0+w;x++) if(occ[y][x]>=0) return false; return true; };
@@ -446,11 +489,11 @@ function tilingScore(t, cols, rows, share, stagger){
   }
   return s;
 }
-function tile(cols, rows, share, orient, stagger, rng){
+function tile(cols, rows, share, orient, stagger, rng, fixed=[]){
   let best=null,bs=Infinity;
   const tries = Math.min(600, 80+cols*rows*12);
   for(let i=0;i<tries;i++){
-    const t=tileOnce(cols,rows,share,orient,rng,S.large);
+    const t=tileOnce(cols,rows,share,orient,rng,S.large,fixed);
     const s=tilingScore(t,cols,rows,share,stagger)+rng()*.01;
     if(s<bs){bs=s;best=t}
   }
@@ -516,58 +559,81 @@ function pickMotif(list, used, nbIds, rng){
   }
   return best;
 }
-function assignMotifs(t, rng){
+// motif lists for each slot, respecting the catalogue selection and the region/type filters
+function slotLists(){
   const pool=motifPool();
   let sqAll=pool.filter(m=>m.size==='square'), tl=pool.filter(m=>m.size==='tall'&&m.symmetric);
   if(!sqAll.length) sqAll=MOTIFS.filter(m=>m.size==='square');
   // a square module shows one motif on its own, so it must already have a mirror axis
   let sq=sqAll.filter(m=>m.axes.length);
   if(!sq.length) sq=MOTIFS.filter(m=>m.size==='square'&&m.axes.length);
-  // squares that may be stacked in a tall module must be left↔right symmetric themselves
   // large modules: 2×2 carries a motif with at least one exact axis; 2×4 must be left↔right symmetric
   let lg=pool.filter(m=>m.size==='large'&&m.axes.length); if(!lg.length) lg=MOTIFS.filter(m=>m.size==='large'&&m.axes.length);
   let lgT=pool.filter(m=>m.size==='largetall'&&m.symmetric); if(!lgT.length) lgT=MOTIFS.filter(m=>m.size==='largetall'&&m.symmetric);
+  // squares that may be stacked in a tall module must be left↔right symmetric themselves
   let sqStack=sq.filter(m=>m.symmetric);
   if(!sqStack.length) sqStack=MOTIFS.filter(m=>m.size==='square'&&m.symmetric);
+  return {sq,sqAll,tl,sqStack,lg,lgT};
+}
+// every pattern that fits a module's exact configuration (kind and, for the mark module, its half-scale ring)
+function optionsFor(m, L=slotLists()){
+  if(m.mark) return MARK_FILLS.map(f=>({how:'mark',id:f.id}));
+  if(m.kind==='S') return L.sq.map(x=>({how:'single',id:x.id}));
+  if(m.kind==='L') return L.lg.map(x=>({how:'large',id:x.id}));
+  if(m.kind==='LT') return L.lgT.map(x=>({how:'large',id:x.id}));
+  if(m.kind==='T') return [...L.tl.map(x=>({how:'tall',id:x.id})), ...L.sqStack.map(x=>({how:'stacked',id:x.id}))];
+  return L.sqAll.map(x=>({how:'facing',id:x.id}));
+}
+const sameChoice=(a,b)=>a&&b&&a.how===b.how&&a.id===b.id;
+// build a module's stitch grid from a choice; null if the choice no longer fits (motif missing, wrong kind)
+function buildChoice(m, ch){
+  if(!ch) return null;
+  if(ch.how==='mark'){ const f=MARK_FILLS.find(x=>x.id===ch.id); return m.mark&&f ? {g:f.grid, ms:[f], how:'mark'} : null; }
+  const mo=MOTIFS.find(x=>x.id===ch.id); if(!mo||m.mark) return null;
+  const want={single:'square',stacked:'square',facing:'square',tall:'tall'}[ch.how] || (m.kind==='L'?'large':'largetall');
+  const ok={S:['single'],T:['tall','stacked'],W:['facing'],L:['large'],LT:['large']}[m.kind];
+  if(!ok||!ok.includes(ch.how)||mo.size!==want) return null;
+  if(ch.how==='single') return {g:mo.grid, ms:[mo], how:'single'};          // never rotated, never flipped
+  if(ch.how==='large') return {g:m.kind==='LT'?mirrorColours(mo.grid):mo.grid, ms:[mo], how:'large'}; // shown whole
+  if(ch.how==='tall') return {g:mirrorColours(mo.grid), ms:[mo], how:'tall'};
+  if(ch.how==='stacked'){ // upright motif repeated above itself — never flipped upside down
+    const top=mirrorColours(mo.grid);
+    return {g:connectRepeats([...top, ...bandRows(), ...top], true, mo), ms:[mo], how:'stacked'};
+  }
+  // wide: upright motif facing its mirror image across a 2-column band (confronted pair)
+  // asymmetric motifs (birds, stepped corners) live here, mirrored into a balanced pair
+  let left=mo.grid;
+  if(mo.faces){ const inward=S.rotate, facesRight=mo.faces==='right'; if(inward!==facesRight) left=flipH(left); }
+  const right=flipH(left), band=bandCols(), pair=left.map((row,y)=>row+band[y]+right[y]);
+  // facing birds are never joined: the open 2-stitch gap keeps them reading as two separate birds
+  return {g:mo.faces?pair:connectRepeats(pair,false,mo), ms:[mo], how:'facing'};
+}
+function assignMotifs(t, rng){
+  const L=slotLists();
   const used={};
   t.mods.forEach((m,i)=>{
     if(m.border) return;
-    const ov=S.overrides[i]||{};
-    const r2=ov.motifSalt?rngFrom(S.seed+'|m|'+i+'|'+ov.motifSalt):rng;
+    const ov=S.overrides[m.key]||{};
+    const r2=ov.motifSalt?rngFrom(S.seed+'|m|'+m.key+'|'+ov.motifSalt):rng;
     const nbIds=new Set([...m.nb].filter(j=>j<i).flatMap(j=>t.mods[j].motifIds||[]));
-    let g, ms, how;
-    if(m.kind==='S'){
-      const mo=pickMotif(sq,used,nbIds,r2); used[mo.id]=(used[mo.id]||0)+1;
-      g=mo.grid; ms=[mo]; how='single';   // never rotated, never flipped
-    } else if(m.kind==='L'||m.kind==='LT'){
-      const mo=pickMotif(m.kind==='L'?lg:lgT,used,nbIds,r2); used[mo.id]=(used[mo.id]||0)+1;
-      g=m.kind==='LT'?mirrorColours(mo.grid):mo.grid; ms=[mo]; how='large';   // shown whole, never rotated or flipped
-    } else if(m.kind==='T'){
-      const useTall = tl.length && (S.doubleMode==='tall' || (S.doubleMode==='mix' && r2()<.6) || !sqStack.length);
-      if(useTall){
-        const mo=pickMotif(tl,used,nbIds,r2); used[mo.id]=(used[mo.id]||0)+1;
-        g=mirrorColours(mo.grid); ms=[mo]; how='tall';
-      } else {
-        // upright motif repeated above itself — never flipped upside down
-        const mo=pickMotif(sqStack,used,nbIds,r2); used[mo.id]=(used[mo.id]||0)+1;
-        const top=mirrorColours(mo.grid);
-        g=connectRepeats([...top, ...bandRows(), ...top], true, mo); ms=[mo]; how='stacked';
-      }
-    } else {
-      // wide: upright motif facing its mirror image across a 2-column band (confronted pair)
-      // asymmetric motifs (birds, stepped corners) live here, mirrored into a balanced pair
-      const mo=pickMotif(sqAll,used,nbIds,r2); used[mo.id]=(used[mo.id]||0)+1;
-      let left=mo.grid;
-      if(mo.faces){ const inward = S.rotate; const facesRight = mo.faces==='right';
-        if(inward!==facesRight) left=flipH(left); }
-      const right=flipH(left), band=bandCols();
-      // facing birds are never joined: the open 2-stitch gap keeps them reading as two separate birds
-      const pair=left.map((row,y)=>row+band[y]+right[y]);
-      g=mo.faces ? pair : connectRepeats(pair, false, mo); ms=[mo]; how='facing';
-    }
-    if(m.kind!=='S'&&m.kind!=='L' ? !isSymFull(g) : !(charLR(g)||charTB(g))) console.warn('symmetry rule violated', ms[0].id);
+    // a locked module keeps its pattern; otherwise pick one, preferring the least used and never a neighbour's
+    let built = m.lock ? buildChoice(m, m.lock.choice) : null;
+    if(!built){
+      let ch;
+      if(m.mark){ const f=pickMotif(MARK_FILLS,used,nbIds,r2); ch={how:'mark',id:f.id}; m.markFull=r2()<.5; }
+      else if(m.kind==='S') ch={how:'single',id:pickMotif(L.sq,used,nbIds,r2).id};
+      else if(m.kind==='L'||m.kind==='LT') ch={how:'large',id:pickMotif(m.kind==='L'?L.lg:L.lgT,used,nbIds,r2).id};
+      else if(m.kind==='T'){
+        const useTall = L.tl.length && (S.doubleMode==='tall' || (S.doubleMode==='mix' && r2()<.6) || !L.sqStack.length);
+        ch = useTall ? {how:'tall',id:pickMotif(L.tl,used,nbIds,r2).id} : {how:'stacked',id:pickMotif(L.sqStack,used,nbIds,r2).id};
+      } else ch={how:'facing',id:pickMotif(L.sqAll,used,nbIds,r2).id};
+      built=buildChoice(m,ch);
+    } else if(m.mark) m.markFull=!!m.lock.markFull;
+    const {g,ms,how}=built; used[ms[0].id]=(used[ms[0].id]||0)+1;
+    if(how==='mark'){ if(!(charLR(g)&&charTB(g))) console.warn('symmetry rule violated', ms[0].id); }
+    else if(m.kind!=='S'&&m.kind!=='L' ? !isSymFull(g) : !(charLR(g)||charTB(g))) console.warn('symmetry rule violated', ms[0].id);
     if(!fillsField(g)) console.warn('fill rule violated', ms[0].id);
-    m.grid=g; m.motifs=ms; m.motifIds=ms.map(x=>x.id); m.how=how;
+    m.grid=g; m.motifs=ms; m.motifIds=ms.map(x=>x.id); m.how=how; m.choice={how,id:ms[0].id};
     finishGrid(m);
   });
   assignBorder(t, rng);
@@ -699,13 +765,31 @@ function colourwaysUnfiltered(keys){
   }
   return out;
 }
+/* PCF MARK: parsed once; part = which logo colour each shape carries; cover = share of the 193×193 box per part */
+const MARK=(()=>{
+  const parts=[]; const re=/<path fill="#([0-9a-f]{6})" d="([^"]+)"\/>/g; let x;
+  while((x=re.exec(MARK_PATHS))){ const h=x[1], r=parseInt(h.slice(0,2),16), g=parseInt(h.slice(2,4),16);
+    parts.push({d:x[2], part: r>200&&g<80 ? 'red' : g>100 ? 'green' : 'black'}); }
+  const cover={black:.12,green:.17,red:.09};
+  try{ const N=193, cv=document.createElement('canvas'); cv.width=cv.height=N; const cx=cv.getContext('2d',{willReadFrequently:true});
+    for(const k of ['black','green','red']){ cx.clearRect(0,0,N,N); parts.filter(p=>p.part===k).forEach(p=>cx.fill(new Path2D(p.d)));
+      const a=cx.getImageData(0,0,N,N).data; let n=0; for(let i=3;i<a.length;i+=4) n+=a[i]/255; cover[k]=n/(N*N); }
+  }catch(e){}
+  return {parts,cover};
+})();
+const MARK_SIDE = INNER/2;            // the mark spans half the 13-stitch field: 6.5 stitches
+const markIsFull=(m,cw)=> cw.bg==='white' && (S.mark.style==='full' || (S.mark.style==='auto' && m.markFull));
+// colour of each mark part: one thread colour (the module's main thread), or the logo's own three colours on a light ground
+function markColours(m,cw){ const full=markIsFull(m,cw); return {black:full?'black':cw.p, green:full?'green':cw.p, red:full?'red':cw.p}; }
 function moduleAreas(m, cw){
-  const cov=STITCHES[S.stitch].cover;
+  const cov=STITCHES[S.stitch].cover*(m.how==='mark'?.25:1);   // half-scale stitches cover a quarter of the area
   const total=m.w*m.h*UNIT*UNIT;
   const a={}; const add=(k,v)=>a[k]=(a[k]||0)+v;
   const neg = m.dense; // dense fields never carry accent colours: accents become negative space
   const st={p:m.cnt['1']*cov, s:neg?0:m.cnt['2']*cov, t:neg?0:m.cnt['3']*cov};
-  add(cw.bg, total-st.p-st.s-st.t); add(cw.p,st.p); add(cw.s,st.s); add(cw.t,st.t);
+  let mk=0;
+  if(m.how==='mark'){ const mc=markColours(m,cw), A=MARK_SIDE*MARK_SIDE; for(const k in mc){ const v=MARK.cover[k]*A; add(mc[k],v); mk+=v; } }
+  add(cw.bg, total-st.p-st.s-st.t-mk); add(cw.p,st.p); add(cw.s,st.s); add(cw.t,st.t);
   return a;
 }
 function assignColours(t, rng){
@@ -730,7 +814,7 @@ function assignColours(t, rng){
 
   function colourAttempt(attempt, level){
   const cw=t.mods.map(()=>null);
-  const jitter=t.mods.map((_,i)=>{const ov=S.overrides[i]; return ov&&ov.colourSalt?rngFrom(S.seed+'|c|'+i+'|'+ov.colourSalt):rng});
+  const jitter=t.mods.map(m=>{const ov=S.overrides[m.key]; return ov&&ov.colourSalt?rngFrom(S.seed+'|c|'+m.key+'|'+ov.colourSalt):rng});
   // units: every field module is its own unit; all border modules share one colourway
   // units: field modules colour individually; border modules in mirror-image positions share a colourway
   const units=[], unitOf=[], keyU={}; let bu=-1;
@@ -742,7 +826,7 @@ function assignColours(t, rng){
   const isB=u=>t.mods[units[u][0]].border;
   const unitNb=units.map((mem,u)=>{const s=new Set(); mem.forEach(i=>t.mods[i].nb.forEach(j=>{if(unitOf[j]!==u)s.add(unitOf[j])})); return s});
   const ucw=units.map(()=>null);
-  const uJit=units.map((mem,u)=>{const ov=isB(u)?S.overrides.border:S.overrides[mem[0]]; return ov&&ov.colourSalt?rngFrom(S.seed+'|c|'+(isB(u)?'b'+u:mem[0])+'|'+ov.colourSalt):jitter[mem[0]]});
+  const uJit=units.map((mem,u)=>{const ov=isB(u)?S.overrides.border:S.overrides[t.mods[mem[0]].key]; return ov&&ov.colourSalt?rngFrom(S.seed+'|c|'+(isB(u)?'b'+u:t.mods[mem[0]].key)+'|'+ov.colourSalt):jitter[mem[0]]});
   const unitAreas=(u,w)=>{const a={}; units[u].forEach(i=>{const x=moduleAreas(t.mods[i],w); for(const k in x)a[k]=(a[k]||0)+x[k]}); return a};
   const totals=Object.fromEntries(keys.map(k=>[k,0]));
 
@@ -843,18 +927,31 @@ function buildSVG(t, forExport){
     const x0=m.c*UNIT*CELL, y0=m.r*UNIT*CELL, w=m.w*UNIT*CELL, h=m.h*UNIT*CELL;
     const mo=m.motifs[0];
     const label=`${String(i+1).padStart(2,'0')}-${m.border?'border-'+m.border+'-':''}${KIND_NAME[m.kind]}-${mo.id}`;
-    const meta=` data-motif="${esc(mo.name)}"${mo.arabic?` data-arabic="${esc(mo.arabic)}"`:''} data-type="${esc(mo.type)}" data-region="${esc(mo.region)}"${mo.city?` data-city="${esc(mo.city)}"`:''}${mo.source?` data-source="${esc(mo.source)}"`:''}`;
+    const meta=(m.how==='mark'?` data-mark="Palestine Cultural Festival" data-mark-colour="${markIsFull(m,m.cw)?'full':m.cw.p}"`:'')+` data-motif="${esc(mo.name)}"${mo.arabic?` data-arabic="${esc(mo.arabic)}"`:''} data-type="${esc(mo.type)}" data-region="${esc(mo.region)}"${mo.city?` data-city="${esc(mo.city)}"`:''}${mo.source?` data-source="${esc(mo.source)}"`:''}`;
     out.push(forExport?`<g id="${esc(label)}"${meta}>`:`<g id="${esc(label)}" class="mod" data-i="${i}">`);
     out.push(`<rect x="${x0}" y="${y0}" width="${w}" height="${h}" fill="${hexOf(m.cw.bg)}"/>`);
     const paths={'1':[],'2':[],'3':[]};
     // stitch field begins one cell in from the module edge
     const neg = S.accents && m.dense;
+    const half = m.how==='mark';          // the mark module is stitched on a half-scale grid
+    const ox = half?0:x0+CELL, oy = half?0:y0+CELL;
     m.grid.forEach((row,ry)=>{for(let cx=0;cx<row.length;cx++){const ch=row[cx]; if(ch==='.'||!(ch in paths)) continue;
       if(neg && ch!=='1') continue;
       const slot=S.accents?ch:'1';
-      paths[slot].push(st.d(x0+(cx+1)*CELL, y0+(ry+1)*CELL));}});
+      paths[slot].push(st.d(ox+cx*CELL, oy+ry*CELL));}});
     const col={'1':m.cw.p,'2':m.cw.s,'3':m.cw.t};
+    if(half) out.push(`<g transform="translate(${x0+CELL} ${y0+CELL}) scale(.5)">`);
     for(const k of ['1','2','3']) if(paths[k].length) out.push(`<path fill="${hexOf(col[k])}" d="${paths[k].join('')}"/>`);
+    if(half){
+      out.push('</g>');
+      // the PCF mark at half the field, centred: field starts 1 cell in; the 14-half-stitch hole starts 6 half-stitches in
+      const side=MARK_SIDE*CELL, mx=x0+CELL+(INNER*CELL-side)/2, my=y0+CELL+(INNER*CELL-side)/2, mc=markColours(m,m.cw);
+      out.push(`<g transform="translate(${f2(mx)} ${f2(my)}) scale(${f2(side/193*1000)/1000})">`+MARK.parts.map(p=>`<path fill="${hexOf(mc[p.part])}" d="${p.d}"/>`).join('')+'</g>');
+    }
+    if(!forExport && m.lock){ // preview only: lock badge in the top-right corner
+      const bx=x0+w-CELL*2.3, by=y0+CELL*.3, z=CELL*2;
+      out.push(`<g class="lockbadge" transform="translate(${bx} ${by}) scale(${z/24})"><rect width="24" height="24" rx="6" fill="#fff" stroke="#231f20" stroke-width="1.5"/><path d="M8 11V8.5a4 4 0 0 1 8 0V11" fill="none" stroke="#231f20" stroke-width="2"/><rect x="6.5" y="11" width="11" height="8" rx="1.5" fill="#231f20"/></g>`);
+    }
     out.push(`</g>`);
   });
   if(forExport && opened) out.push('</g>');
@@ -865,9 +962,33 @@ function buildSVG(t, forExport){
 /* ============================================================
    GENERATE + UI
    ============================================================ */
+// modules placed before tiling: locked modules (kept as they are) and the PCF mark module
+function fixedModules(){
+  const occ=Array.from({length:S.rows},()=>Array(S.cols).fill(false));
+  const fits=f=>f.c>=0&&f.r>=0&&f.c+f.w<=S.cols&&f.r+f.h<=S.rows&&(()=>{for(let y=f.r;y<f.r+f.h;y++)for(let x=f.c;x<f.c+f.w;x++)if(occ[y][x])return false;return true})();
+  const take=f=>{for(let y=f.r;y<f.r+f.h;y++)for(let x=f.c;x<f.c+f.w;x++)occ[y][x]=true};
+  const out=[];
+  for(const [k,l] of Object.entries(S.locks)){
+    if(l.mark && !S.mark.on) continue;
+    if(!fits(l)){ delete S.locks[k]; continue; }   // composition shrank or the slot is taken: the lock lapses
+    take(l); out.push({c:l.c,r:l.r,w:l.w,h:l.h,kind:l.kind,mark:!!l.mark,lock:l});
+  }
+  if(S.mark.on && !out.some(f=>f.mark)){
+    let pos=null;
+    if(S.mark.pos){ const [c,r]=S.mark.pos.split(',').map(Number); if(fits({c,r,w:1,h:1})) pos={c,r}; }
+    if(!pos){ // seeded position among free cells
+      const free=[]; for(let r=0;r<S.rows;r++) for(let c=0;c<S.cols;c++) if(!occ[r][c]) free.push({c,r});
+      if(free.length){ const rr=rngFrom(S.seed+'|mark|'+S.cols+'x'+S.rows); pos=free[rr()*free.length|0]; }
+    }
+    if(pos){ take({...pos,w:1,h:1}); out.push({...pos,w:1,h:1,kind:'S',mark:true}); }
+  }
+  return out;
+}
 function generate(){
   const rng=rngFrom(S.seed+'|'+S.cols+'x'+S.rows);
-  const t=tile(S.cols,S.rows,S.share,S.orient,S.stagger,rngFrom(S.seed+'|tile|'+S.cols+'x'+S.rows+'|'+S.share+'|'+S.orient+'|'+S.stagger+(S.large?'|L'+S.large:'')));
+  const fixed=fixedModules();
+  const t=tile(S.cols,S.rows,S.share,S.orient,S.stagger,rngFrom(S.seed+'|tile|'+S.cols+'x'+S.rows+'|'+S.share+'|'+S.orient+'|'+S.stagger+(S.large?'|L'+S.large:'')),fixed);
+  t.mods.forEach(m=>m.key=m.c+','+m.r);   // field position: identifies a module for shuffles, picks and locks
   const sd=S.border.on?{L:+S.border.sides.left,T:+S.border.sides.top,R:+S.border.sides.right,B:+S.border.sides.bottom}:{L:0,T:0,R:0,B:0};
   t.mods.forEach(m=>{m.c+=sd.L;m.r+=sd.T});
   t.cols=S.cols+sd.L+sd.R; t.rows=S.rows+sd.T+sd.B; t.sd=sd;
@@ -877,7 +998,7 @@ function generate(){
   assignColours(t,rngFrom(S.seed+'|colour'));
   LAST=t;
   document.getElementById('canvas').innerHTML=buildSVG(t,false);
-  updateStatus(t);
+  updateStatus(t); updateLockInfo();
 }
 function updateStatus(t){
   const sum=Object.values(t.totals).reduce((a,b)=>a+b,0);
@@ -889,7 +1010,7 @@ function updateStatus(t){
     `<span><b>${fm.length}</b> modules · ${sq} square · ${tall} tall · ${wide} wide${big?` · ${big} large`:''}</span>`+
     (bmods.length?`<span><b>${bmods.length}</b> border · ${esc(t.borderBand.name)} (${esc(t.borderBand.area)}) · corners: ${esc(t.cornerMotif.name)}</span>`:'')+
     `<span><b>${t.mods.reduce((a,m)=>a+m.grid.reduce((b,r)=>b+[...r].filter(c=>c!=='.').length,0),0).toLocaleString()}</b> stitches</span>`+
-    `<span>Min. contrast <b>${Math.min(...t.mods.flatMap(m=>{const c=[m.cw.p]; if(S.accents){if(m.cnt['2'])c.push(m.cw.s); if(m.cnt['3'])c.push(m.cw.t)} return c.map(x=>contrastRatio(hexOf(m.cw.bg),hexOf(x)))})).toFixed(2)}:1</b></span>`+
+    `<span>Min. contrast <b>${Math.min(...t.mods.flatMap(m=>{const c=[m.cw.p]; if(S.accents){if(m.cnt['2'])c.push(m.cw.s); if(m.cnt['3'])c.push(m.cw.t)} if(m.how==='mark') c.push(...Object.values(markColours(m,m.cw))); return c.map(x=>contrastRatio(hexOf(m.cw.bg),hexOf(x)))})).toFixed(2)}:1</b></span>`+
     `<span style="display:flex;gap:10px;align-items:center">Colour balance <span class="balance">${bar}</span><span class="legend">${leg}</span></span>`;
 }
 function updateSizeInfo(){
@@ -921,24 +1042,118 @@ outW.addEventListener('input',()=>{const v=parseFloat(outW.value);if(v>0){S.outW
 outUnit.addEventListener('change',()=>{S.outUnit=outUnit.value;updateSizeInfo()});
 seed.addEventListener('input',()=>{S.seed=seed.value||'seed';regen()});
 document.getElementById('shuffle').addEventListener('click',()=>{const w=['olive','sarw','qamar','reesh','nakhleh','zaytoun','burtuqal','hilal','najmeh','warda','sunbuleh','qandil','mushut','aqrab','jamal'];const r=Math.random;S.seed=w[r()*w.length|0]+'-'+(1000+(r()*9000|0));seed.value=S.seed;regen()});
-function bumpModule(g,colour){
-  const i=+g.dataset.i; const key=LAST.mods[i].border?'border':i;
-  const ov=S.overrides[key]||(S.overrides[key]={});
-  if(colour) ov.colourSalt=(ov.colourSalt||0)+1; else ov.motifSalt=(ov.motifSalt||0)+1;
-  generate();
+/* ---------- per-module controls: click = shuffle, right-click / long-press = menu (pick a pattern, lock) ---------- */
+function toast(msg){const el=document.getElementById('toast');el.textContent=msg;el.classList.add('on');clearTimeout(toast.t);toast.t=setTimeout(()=>el.classList.remove('on'),2200)}
+const okey=m=>m.border?'border':m.key;
+function shuffleModule(m){
+  if(m.lock){ toast('Locked — unlock it to shuffle'); return; }
+  const ov=S.overrides[okey(m)]||(S.overrides[okey(m)]={}); ov.motifSalt=(ov.motifSalt||0)+1; generate();
 }
-let press=null; // long-press on touch = Shift-click (recolour)
-document.getElementById('canvas').addEventListener('click',e=>{
+function recolourModule(m){ const ov=S.overrides[okey(m)]||(S.overrides[okey(m)]={}); ov.colourSalt=(ov.colourSalt||0)+1; generate(); }
+function lockModule(m, choice){
+  const [c,r]=m.key.split(',').map(Number);
+  S.locks[m.key]={c,r,w:m.w,h:m.h,kind:m.kind,mark:!!m.mark,choice:choice||m.choice,markFull:!!m.markFull};
+}
+function updateLockInfo(){
+  const n=LAST?LAST.mods.filter(m=>m.lock).length:0;
+  lockInfo.innerHTML = n ? `<b>${n} locked</b> — they keep their pattern through Shuffle and setting changes; colours still adjust to the whole composition. <button class="linkbtn" id="unlockAll">Unlock all</button>` : '';
+  const u=document.getElementById('unlockAll'); if(u) u.onclick=()=>{S.locks={};generate()};
+}
+function findModule(ref){ // ref = field key, or 'b:side:c,r' for a border module
+  if(!LAST) return null;
+  if(ref.startsWith('b:')){ const [,side,cr]=ref.split(':'); return LAST.mods.find(m=>m.border===side&&m.c+','+m.r===cr)||null; }
+  return LAST.mods.find(m=>!m.border&&m.key===ref)||null;
+}
+// small preview of a candidate pattern in this module's current colours
+function thumbSVG(g, cw, how){
+  const mark=how==='mark', pad=mark?2:1, W=g[0].length+pad*2, H=g.length+pad*2, col={'1':cw.p,'2':cw.s,'3':cw.t};
+  let r=`<svg viewBox="0 0 ${W} ${H}" aria-hidden="true"><rect width="${W}" height="${H}" fill="${hexOf(cw.bg)}"/>`;
+  const by={'1':'','2':'','3':''};
+  g.forEach((row,y)=>[...row].forEach((ch,x)=>{ if(ch in by) by[S.accents?ch:'1']+=`M${x+pad} ${y+pad}h.9v.9h-.9z`; }));
+  for(const k in by) if(by[k]) r+=`<path fill="${hexOf(col[k])}" d="${by[k]}"/>`;
+  if(mark){ const side=MARK_SIDE*2, o=pad+(26-side)/2, mc={black:cw.p,green:cw.p,red:cw.p};
+    r+=`<g transform="translate(${o} ${o}) scale(${side/193})">`+MARK.parts.map(p=>`<path fill="${hexOf(mc[p.part])}" d="${p.d}"/>`).join('')+'</g>'; }
+  return r+'</svg>';
+}
+function closeMenu(){ const mm=document.getElementById('modmenu'); mm.hidden=true; mm.innerHTML=''; }
+function openMenu(m, x, y){
+  const mm=document.getElementById('modmenu');
+  const ref=m.border?`b:${m.border}:${m.c},${m.r}`:m.key;
+  mm.dataset.ref=ref; if(x!=null){mm.dataset.x=x;mm.dataset.y=y}
+  const mo=m.motifs[0], dims=`${m.how==='mark'?'13 × 13 · half-scale grid':`${13*m.w+2*(m.w-1)} × ${13*m.h+2*(m.h-1)}`}`;
+  const title = m.how==='mark' ? `PCF mark · ${mo.name} frame` : m.border ? (m.border==='corner'?`Border corner · ${mo.name}`:`Border · ${mo.name}`) : mo.name;
+  let h=`<div class="mh"><b>${esc(title)}</b><small>${m.border?'border':KIND_NAME[m.kind]} · ${dims}${mo.area||mo.region?' · '+esc(mo.area||mo.region):''}</small></div><div class="acts">`;
+  const act=(id,label,on)=>h+=`<button data-act="${id}"${on?' class="on"':''}>${label}</button>`;
+  if(m.border){
+    const pinned=S.border.pattern!=='auto'&&S.border.corner!=='auto';
+    act('shuffle','⟳ Shuffle border'); act('lockborder',pinned?'🔒 Border kept · release':'🔓 Keep this border',pinned);
+  } else {
+    act('shuffle','⟳ Shuffle pattern'); act('lock',m.lock?'🔒 Locked · unlock':'🔓 Lock pattern',!!m.lock);
+    act('recolour','◐ Another colourway');
+    if(S.mark.on && m.kind==='S' && !m.mark) act('markhere','✦ Place PCF mark here');
+  }
+  const nl=LAST.mods.filter(x=>x.lock).length; if(nl) act('unlockall',`Unlock all (${nl})`);
+  h+='</div>';
+  // the patterns that fit this exact slot
+  let opts=[], cur=null, label='';
+  if(m.border==='corner'){ opts=MOTIFS.filter(x=>x.c4&&!S.disabled.has(x.id)).map(x=>({how:'corner',id:x.id})); cur={how:'corner',id:mo.id}; label='Corner motifs (four-way symmetric)'; }
+  else if(m.border){ opts=BORDERS.map(b=>({how:'band',id:b.id})); cur={how:'band',id:LAST.borderBand.id}; label='Border bands'; }
+  else { opts=optionsFor(m); cur=m.choice; if(!opts.some(o=>sameChoice(o,cur))) opts.unshift(cur);
+    label = m.how==='mark' ? 'Frames around the mark' : `Patterns for this ${KIND_NAME[m.kind]} module`; }
+  h+=`<h5>${label} · ${opts.length}</h5><div class="opts">`;
+  opts.forEach((o,k)=>{
+    let g, nm, how=o.how;
+    if(o.how==='corner'){ const x=MOTIFS.find(z=>z.id===o.id); g=x.grid; nm=x.name; }
+    else if(o.how==='band'){ const b=BORDERS.find(z=>z.id===o.id); const hz=m.border==='top'||m.border==='bottom'; g=b.strips[(hz?'h':'v')+((hz?m.w:m.h)===2?TALL_INNER:INNER)]; nm=b.name; }
+    else { const bt=buildChoice(m,o); if(!bt) return; g=bt.g; nm=bt.ms[0].name+(o.how==='stacked'?' (stacked)':''); }
+    h+=`<button data-opt="${k}" title="${esc(nm)}"${sameChoice(o,cur)?' aria-current="true"':''}>${thumbSVG(g,m.cw,how)}<span>${esc(nm)}</span></button>`;
+  });
+  h+='</div>';
+  mm.innerHTML=h; mm.hidden=false;
+  if(innerWidth>820){ const X=+mm.dataset.x, Y=+mm.dataset.y; mm.style.left=Math.max(8,Math.min(X,innerWidth-mm.offsetWidth-8))+'px'; mm.style.top=Math.max(8,Math.min(Y,innerHeight-mm.offsetHeight-8))+'px'; }
+  mm.onclick=e=>{
+    const b=e.target.closest('button'); if(!b) return;
+    const mod=findModule(mm.dataset.ref); if(!mod){closeMenu();return}
+    if(b.dataset.opt!=null){
+      const o=opts[+b.dataset.opt];
+      if(o.how==='corner'){ S.border.corner=o.id; cornerMotif.value=o.id; }
+      else if(o.how==='band'){ S.border.pattern=o.id; borderPattern.value=o.id; }
+      else { lockModule(mod,o); toast('Pattern picked and locked'); }
+      generate();
+    } else {
+      const a=b.dataset.act;
+      if(a==='shuffle'){ if(mod.border){ S.border.pattern='auto';S.border.corner='auto';borderPattern.value='auto';cornerMotif.value='auto'; } shuffleModule(mod); }
+      else if(a==='lock'){ if(mod.lock) delete S.locks[mod.key]; else lockModule(mod); generate(); toast(mod.lock?'Unlocked':'Locked'); }
+      else if(a==='lockborder'){ const pinned=S.border.pattern!=='auto'&&S.border.corner!=='auto';
+        if(pinned){S.border.pattern='auto';S.border.corner='auto'} else {S.border.pattern=LAST.borderBand.id;S.border.corner=LAST.cornerMotif.id}
+        borderPattern.value=S.border.pattern; cornerMotif.value=S.border.corner; generate(); }
+      else if(a==='recolour') recolourModule(mod);
+      else if(a==='markhere'){ for(const k in S.locks) if(S.locks[k].mark) delete S.locks[k]; delete S.locks[mod.key]; S.mark.pos=mod.key; generate(); }
+      else if(a==='unlockall'){ S.locks={}; generate(); }
+    }
+    const again=findModule(mm.dataset.ref) || (S.mark.pos&&findModule(S.mark.pos));
+    if(again) openMenu(again); else closeMenu();
+  };
+}
+const canvasEl=document.getElementById('canvas');
+let press=null; // touch: long-press opens the module menu
+canvasEl.addEventListener('click',e=>{
   if(press&&press.fired){press=null;return}
-  const g=e.target.closest('g.mod'); if(g) bumpModule(g,e.shiftKey);
+  const g=e.target.closest('g.mod'); if(!g) return; const m=LAST.mods[+g.dataset.i];
+  if(e.shiftKey) recolourModule(m); else shuffleModule(m);
 });
-document.getElementById('canvas').addEventListener('pointerdown',e=>{
+canvasEl.addEventListener('contextmenu',e=>{ const g=e.target.closest('g.mod'); if(!g) return; e.preventDefault(); openMenu(LAST.mods[+g.dataset.i],e.clientX,e.clientY); });
+canvasEl.addEventListener('pointerdown',e=>{
   if(e.pointerType!=='touch') return; const g=e.target.closest('g.mod'); if(!g) return;
-  press={x:e.clientX,y:e.clientY,fired:false,t:setTimeout(()=>{press.fired=true;navigator.vibrate&&navigator.vibrate(12);bumpModule(g,true)},500)};
+  press={x:e.clientX,y:e.clientY,fired:false,t:setTimeout(()=>{press.fired=true;navigator.vibrate&&navigator.vibrate(12);openMenu(LAST.mods[+g.dataset.i],press.x,press.y)},500)};
 });
-['pointerup','pointercancel'].forEach(t=>document.getElementById('canvas').addEventListener(t,()=>{if(press&&!press.fired){clearTimeout(press.t);press=null}}));
-document.getElementById('canvas').addEventListener('pointermove',e=>{if(press&&!press.fired&&Math.hypot(e.clientX-press.x,e.clientY-press.y)>10){clearTimeout(press.t);press=null}});
-document.getElementById('canvas').addEventListener('contextmenu',e=>{if(e.target.closest('g.mod'))e.preventDefault()});
+['pointerup','pointercancel'].forEach(t=>canvasEl.addEventListener(t,()=>{if(press&&!press.fired){clearTimeout(press.t);press=null}}));
+canvasEl.addEventListener('pointermove',e=>{if(press&&!press.fired&&Math.hypot(e.clientX-press.x,e.clientY-press.y)>10){clearTimeout(press.t);press=null}});
+document.addEventListener('pointerdown',e=>{ const mm=document.getElementById('modmenu'); if(!mm.hidden && !mm.contains(e.target) && !e.target.closest('#canvas g.mod')) closeMenu(); });
+document.addEventListener('keydown',e=>{ if(e.key==='Escape') closeMenu(); });
+addEventListener('resize',()=>{ if(innerWidth>820) closeMenu(); });
+markOn.addEventListener('change',()=>{S.mark.on=markOn.checked; markOpts.style.display=S.mark.on?'':'none'; regen()});
+markStyle.addEventListener('change',()=>{S.mark.style=markStyle.value; generate()});
 filterToggle.addEventListener('click',()=>{const side=filterToggle.parentElement;side.classList.toggle('open');filterToggle.setAttribute('aria-expanded',side.classList.contains('open'))});
 let DL=null; // platform download capability when hosted as an artifact
 try{ if(window.claude && claude.use) claude.use('downloads').then(d=>{DL=d}).catch(()=>{}); }catch(e){}
