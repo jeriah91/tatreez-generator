@@ -20,7 +20,6 @@ No dependencies are needed to build. Python 3.9+ is enough.
 | `data/supplied.json` | 8 motifs from the original artwork; 6 traced to a source chart, 2 held back as untraced. |
 | `data/supplied_charts.json` | Owner artwork charts fitted by the pipeline (Asset 29, held back as untraced). |
 | `PROVENANCE.md` | Generated register: every pattern in use, its source chart and how it was adapted. |
-| `data/markfills.json` | 10 frames for the PCF mark module: real disc charts on a half-scale grid (`pipeline/markfill.py`). |
 | `data/brand/` | Palestine Cultural Festival logo: colour mark and single-colour full logo. |
 | `data/borders.json` | 9 border bands with prebuilt strips (`h13`, `h28`, `v13`, `v28`). |
 | `data/charts.json` | 53 source charts transcribed from Tatreez.app. |
