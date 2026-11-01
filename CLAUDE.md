@@ -9,6 +9,7 @@ Single-page generator for modular Palestinian tatreez (cross-stitch) composition
 - Tall module = exactly double: 13 + 2 + 13 stitches high (28 inner). Wide is the same rotated.
 - Large modules carry complex charts close to full size: **large** = 2×2 modules (28×28 stitches), **large tall** = 2×4 (28×58). An n-module span is 13n + 2(n−1) stitches. Share set by the "Large modules (area)" slider; they never appear in the border.
 - Compositions are fully filled, Lego-like: no gaps, any mix of 1×1, 1×2, 2×1, 2×2, 2×4.
+- **PCF mark module** (toggle, on by default): exactly one 1×1 field module carries the Palestine Cultural Festival mark at **half the 13-stitch field** (6.5 stitches, `MARK_SIDE`), centred. The rest of its field is a **half-scale stitch grid** (26×26 half-stitches); the centre 14×14 half-stitches are left for the mark. Position is seeded, or set with "Place PCF mark here".
 
 ### Fill rule
 - Every motif fills its whole field, leaving **exactly a 1-stitch margin** on all four sides — never 2.
@@ -37,6 +38,14 @@ Single-page generator for modular Palestinian tatreez (cross-stitch) composition
 - Frame modules in mirror-image positions share a colourway. If that makes a background clash unavoidable (e.g. a large module touching both the top and bottom runs), the solver relaxes it: first each side's run is mirrored only about its own centre, and only as a last resort is every frame module coloured on its own.
 - Known limit: dense large motifs always carry ≥~30% off-white (off-white is in every colourway), so a high large-module share pushes off-white above 25%.
 
+### PCF mark colour
+- On an off-white ground the mark is one colour (green, black or red — the module's main thread) or **full colour** (its logo parts in the palette's black, green and red). On a green, black or red ground the mark is off-white. Mark style: auto (seeded) / one colour / full colour; full colour only ever on off-white.
+- The mark's area counts toward colour balance; it follows the same contrast and forbidden-pair rules as stitches.
+
+### Module controls
+- Click a module = shuffle its pattern. Shift-click = another colourway. Right-click (long-press on touch) = menu listing every pattern that fits that exact slot (same kind; tall slots list tall motifs and stacked squares; the mark lists its frames; border modules list bands / C4 corners), plus Lock/Unlock, Shuffle, Place PCF mark here, Unlock all.
+- **Locks** (`S.locks`, keyed by field position `c,r`): a locked module keeps its slot, size and pattern through Shuffle and setting changes; the tiler places locked modules (and the mark) first and tiles around them. Picking a pattern from the menu locks it. Locks that no longer fit the composition lapse. **Colours are never locked** — they are re-solved over the whole composition every time.
+
 ### Borders
 - Toggle on/off. Choose all four sides or specific sides.
 - One module deep. Runs are segmented symmetrically from each run's own centre. Corners use C4-symmetric motifs.
@@ -52,14 +61,15 @@ Single-page generator for modular Palestinian tatreez (cross-stitch) composition
 - **Enforced by the build:** `pipeline/build.py` excludes any motif whose `source` isn't one of the two sources and fails on an untraced border band. It writes `PROVENANCE.md`, the register of every pattern in use, its source and derivation, plus the excluded untraced list.
 - Owner-supplied artwork is held to the same rule. It is used only once matched to a source chart (the match is recorded in `data/supplied.json` `derivation`). Untraced artwork stays in `data/` with `inventory_status: untraced` / `status: untraced`; currently excluded: `asset-29`, `supplied-rosette`, `supplied-dove`.
 - Compositional additions required by other rules (connector stems, 2-stitch gaps, borders' spacing) are layout, not new patterns.
+- PCF mark frames (`data/markfills.json`, built by `pipeline/markfill.py`) are real disc/medallion charts fitted to 26×26 half-stitches with their centre medallion cleared for the mark; both mirror axes required. The build gates them like motifs and lists them in `PROVENANCE.md`.
 - Don't commit the source PDF.
 - Owner artwork charts live in `data/supplied_charts.json` (e.g. `asset-29`, from `reference/artwork/Asset 29.svg`) and are referenced from `spec.py` with `supplied=`. Tatreez.app charts can be reused for a second size with `chart=`.
 
 ### Layout
-- Responsive: desktop has a settings sidebar beside the canvas; at ≤820px it becomes one scrolling page with the composition pinned on top, Shuffle/Download pinned at the bottom, catalogue filters folded behind "Group & filter", and short tab labels. Long-press a module on touch screens = Shift-click (recolour). Keep inputs ≥16px on mobile (stops iOS zoom) and no horizontal overflow.
+- Responsive: desktop has a settings sidebar beside the canvas; at ≤820px it becomes one scrolling page with the composition pinned on top, Shuffle/Download pinned at the bottom, catalogue filters folded behind "Group & filter", and short tab labels. Long-press a module on touch screens opens the module menu (bottom sheet on mobile). Keep inputs ≥16px on mobile (stops iOS zoom) and no horizontal overflow.
 
 ### Branding
-- Palestine Cultural Festival logo, source `reference/brand/PCF - Wide.pdf`. `data/brand/logo-mark.svg` = the colour mark (header + favicon); `data/brand/logo-full-black.svg` = full logo in one colour (`currentColor`, set to the palette black) in the site footer. `build.py` inlines both. Don't recolour or redraw the logo.
+- Palestine Cultural Festival logo, source `reference/brand/PCF - Wide.pdf`. `data/brand/logo-mark.svg` = the colour mark (header + favicon); `data/brand/logo-full-black.svg` = full logo in one colour (`currentColor`, set to the palette black) in the site footer. `build.py` inlines both. Never redraw or distort the logo; the only recolouring allowed is the PCF mark module's colour rules above.
 
 ### Output
 - One SVG download. Groups: `#composition > #field, #border`; each module is its own `<g>` with an id like `NN-[border-side-]kind-motifid` and `data-*` metadata.

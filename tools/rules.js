@@ -18,13 +18,30 @@ const res=await p.evaluate((RUNS)=>{
   const [c,r]=pick(SIZES);
   Object.assign(S,{cols:c,rows:r,seed:'s'+run,share:pick([0,25,50,75,100]),large:pick([0,0,25,50,100]),orient:pick(['tall','wide','mixed']),
    doubleMode:pick(['mix','tall','pair']),stagger:rnd()<.7,stitch:pick(Object.keys(STITCHES)),accents:rnd()<.8,
-   rotate:rnd()<.5,overrides:{}});
+   rotate:rnd()<.5,overrides:{},locks:{}});
+  S.mark={on:rnd()<.75,style:pick(['auto','single','full']),pos:rnd()<.2?`${rnd()*c|0},${rnd()*r|0}`:null};
   const bon=rnd()<.5; S.border.on=bon;
   const sides=['top','right','bottom','left']; let any=false;
   sides.forEach(s=>{S.border.sides[s]=rnd()<(rnd()<.5?1:.6);any=any||S.border.sides[s]}); if(!any)S.border.sides.top=true;
   const cfg=`${c}x${r} seed=s${run} share=${S.share} orient=${S.orient} mode=${S.doubleMode} large=${S.large} stagger=${S.stagger} rotate=${S.rotate} stitch=${S.stitch} accents=${S.accents} border=${bon?sides.filter(s=>S.border.sides[s]).join('+'):'off'}`;
   try{generate()}catch(e){bump('generate threw',cfg+' '+e.message);continue}
-  const t=LAST; n++;
+  let t=LAST; n++;
+  // LOCKS: lock a few modules, change seed and settings, regenerate — locked modules must keep slot and pattern
+  if(rnd()<.35){
+   const field=t.mods.filter(m=>!m.border); const k=1+(rnd()*3|0); const chosen=[];
+   for(let q=0;q<k&&field.length;q++){const m=field.splice(rnd()*field.length|0,1)[0]; lockModule(m); chosen.push({key:m.key,w:m.w,h:m.h,choice:JSON.stringify(m.choice),mark:!!m.mark})}
+   Object.assign(S,{seed:'s'+run+'b',share:pick([0,25,50,75,100]),large:pick([0,25,50]),orient:pick(['tall','wide','mixed']),overrides:{}});
+   try{generate()}catch(e){bump('generate threw (locked)',cfg+' '+e.message);continue}
+   t=LAST;
+   for(const L of chosen){ const m=t.mods.find(x=>!x.border&&x.key===L.key);
+     if(!m||m.w!==L.w||m.h!==L.h) bump('lock: locked module lost its slot',cfg+' '+L.key);
+     else if(JSON.stringify(m.choice)!==L.choice) bump('lock: locked module changed pattern',cfg+' '+L.key);
+     else if(!m.lock) bump('lock: lock flag missing',cfg+' '+L.key); }
+  }
+  // PCF mark: exactly one when on, none when off
+  const marks=t.mods.filter(m=>m.mark);
+  if(S.mark.on&&marks.length!==1) bump('mark: expected exactly one mark module',cfg+' '+marks.length);
+  if(!S.mark.on&&marks.length) bump('mark: mark module present while off',cfg);
   // --- tiling: full cover, no overlap
   const cov=Array.from({length:t.rows},()=>Array(t.cols).fill(0));
   t.mods.forEach(m=>{for(let y=m.r;y<m.r+m.h;y++)for(let x=m.c;x<m.c+m.w;x++){if(y<0||x<0||y>=t.rows||x>=t.cols)bump('tiling: out of bounds',cfg);else cov[y][x]++}});
@@ -38,8 +55,21 @@ const res=await p.evaluate((RUNS)=>{
    const neg=S.accents&&m.dense, col={'1':m.cw.p,'2':m.cw.s,'3':m.cw.t};
    const R=m.grid.map(row=>[...row].map(ch=>{if(ch==='.'||!(ch in col))return '.'; if(neg&&ch!=='1')return '.'; return S.accents?col[ch]:m.cw.p}));
    const H=R.length,W=R[0].length;
-   const span=n=>13*n+2*(n-1), eH=span(m.h), eW=span(m.w);
+   const span=n=>13*n+2*(n-1), eH=m.how==='mark'?26:span(m.h), eW=m.how==='mark'?26:span(m.w);
    if(H!==eH||W!==eW) bump('grid: wrong stitch-field size',id+` ${H}x${W}`);
+   if(m.how==='mark'){
+     if(m.kind!=='S'||m.border) bump('mark: not a square field module',id);
+     if(MARK_SIDE!==6.5) bump('mark: not half the 13-stitch field',id);
+     // the centre is left for the mark; the ring keeps 2 mirror axes
+     for(let y=6;y<=19;y++) for(let x=6;x<=19;x++) if(R[y][x]!=='.'){ bump('mark: stitches under the mark',id); y=99; break; }
+     const mc=markColours(m,m.cw), full=markIsFull(m,m.cw);
+     if(full&&m.cw.bg!=='white') bump('mark: full colour on a dark ground',id);
+     if(!full&&new Set(Object.values(mc)).size!==1) bump('mark: one-colour mark uses several colours',id);
+     if(m.cw.bg!=='white'&&Object.values(mc).some(k=>k!=='white')) bump('mark: dark ground without a light mark',id);
+     if(m.cw.bg==='white'&&Object.values(mc).some(k=>k==='white')) bump('mark: light mark on a light ground',id);
+     Object.values(mc).forEach(k=>{ if(k===m.cw.bg||BAD.has(k+'|'+m.cw.bg)||contrastRatio(hex(k),hex(m.cw.bg))<3) bump('mark: contrast',id+` ${k} on ${m.cw.bg}`); });
+     if(!m.motifs[0].source||!/^https:\/\/tatreez\.app\//.test(m.motifs[0].source)) bump('provenance: mark frame untraced',id);
+   }
    // fill: stitches reach all four field edges (exactly 1-stitch margin)
    const st=(y,x)=>R[y][x]!=='.';
    const top=R[0].some(v=>v!=='.'),bot=R[H-1].some(v=>v!=='.'),lef=R.some(r=>r[0]!=='.'),rig=R.some(r=>r[W-1]!=='.');
@@ -49,6 +79,7 @@ const res=await p.evaluate((RUNS)=>{
    const LR=R.every(r=>r.join()===[...r].reverse().join()), TB=key.every((r,y)=>r===key[H-1-y]);
    if(m.border==='corner'){ if(!(H===W&&R.every((row,y)=>row.every((v,x)=>v===R[W-1-x][y])))) bump('border: corner not C4-symmetric',id); }
    else if(m.border){ if(!(LR||TB)) bump('symmetry: border strip has no mirror axis',id); }
+   else if(m.how==='mark'){ if(!(LR&&TB)) bump('symmetry: mark frame not symmetric on both axes',id); }
    else if(m.kind==='S'||m.kind==='L'){ if(!(LR||TB)) bump(`symmetry: ${m.kind==='S'?'square':'large'} has no exact axis`,id); }
    else if(m.kind==='LT'){ if(!LR) bump('symmetry: large tall not left-right symmetric',id); }
    else { if(!LR) bump('symmetry: double not mirror-symmetric across long axis',id); }
