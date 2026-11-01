@@ -207,17 +207,6 @@ input[type=range]{width:100%;accent-color:var(--ink)}
       </select>
     </div>
 
-    <h2>PCF mark</h2>
-    <label class="check"><input type="checkbox" id="markOn" checked> Include the PCF mark module</label>
-    <div class="field" id="markOpts">Mark colour
-      <select id="markStyle">
-        <option value="auto">Auto (changes with seed)</option>
-        <option value="single">One colour</option>
-        <option value="full">Full colour on light grounds</option>
-      </select>
-    </div>
-    <p class="hint">One square module carries the Palestine Cultural Festival mark at half the size of the 13-stitch field, framed by a half-scale stitch grid taken from a real disc chart. On off-white the mark is green, black or red (or full colour); on green, black or red it is off-white. Right-click it to choose the frame or place the mark elsewhere.</p>
-
     <h2>Border</h2>
     <label class="check"><input type="checkbox" id="borderOn"> Add border modules</label>
     <div id="borderOpts" style="display:none">
@@ -352,8 +341,6 @@ const INVENTORY = __INVENTORY__;
 const BORDERS = __BORDERS__;
 const KAWAR_INV = __KAWAR_INV__;
 const STITCH_REST = __STITCH_REST__;
-const MARK_FILLS = __MARKFILLS__;   // half-scale rings around the PCF mark, each traced from a real disc chart
-const MARK_PATHS = __MARK_PATHS__;  // the Palestine Cultural Festival mark, viewBox 0 0 193 193, logo colours
 
 
 const PALETTE = [
@@ -420,8 +407,7 @@ const S = {
   region:'', type:'', rotate:true, outW:600, outUnit:'mm', seed:'nakba-1948',
   disabled:new Set(),
   overrides:{}, // module key ('c,r' in field coords) | 'border' -> {motifSalt, colourSalt}
-  locks:{},     // 'c,r' -> {c,r,w,h,kind,mark,choice:{how,id}} — kept through Shuffle and setting changes
-  mark:{on:true, style:'auto', pos:null}, // PCF mark module: style auto|single|full; pos = chosen 'c,r' or null (seeded)
+  locks:{},     // 'c,r' -> {c,r,w,h,kind,choice:{how,id}} — kept through Shuffle and setting changes
   border:{on:false, sides:{top:true,right:true,bottom:true,left:true}, pattern:'auto', corner:'auto'},
 };
 let LAST = null; // last generated composition
@@ -434,7 +420,7 @@ const KIND_NAME={S:'square',T:'tall',W:'wide',L:'large',LT:'large-tall'};
 function tileOnce(cols, rows, share, orient, rng, large, fixed=[]){
   const occ = Array.from({length:rows},()=>Array(cols).fill(-1));
   const mods=[];
-  // locked modules and the PCF mark module are placed first; everything else tiles around them
+  // locked modules are placed first; everything else tiles around them
   for(const f of fixed){ const id=mods.length; mods.push({...f}); for(let y=f.r;y<f.r+f.h;y++) for(let x=f.c;x<f.c+f.w;x++) occ[y][x]=id; }
   const p2 = Math.min(.98, share/100 * 1.15); // probability of attempting a double at a free cell
   const pL = Math.min(.7, large/100 * .9);     // probability of attempting a large module at a free cell
@@ -575,9 +561,8 @@ function slotLists(){
   if(!sqStack.length) sqStack=MOTIFS.filter(m=>m.size==='square'&&m.symmetric);
   return {sq,sqAll,tl,sqStack,lg,lgT};
 }
-// every pattern that fits a module's exact configuration (kind and, for the mark module, its half-scale ring)
+// every pattern that fits a module's exact configuration
 function optionsFor(m, L=slotLists()){
-  if(m.mark) return MARK_FILLS.map(f=>({how:'mark',id:f.id}));
   if(m.kind==='S') return L.sq.map(x=>({how:'single',id:x.id}));
   if(m.kind==='L') return L.lg.map(x=>({how:'large',id:x.id}));
   if(m.kind==='LT') return L.lgT.map(x=>({how:'large',id:x.id}));
@@ -588,8 +573,7 @@ const sameChoice=(a,b)=>a&&b&&a.how===b.how&&a.id===b.id;
 // build a module's stitch grid from a choice; null if the choice no longer fits (motif missing, wrong kind)
 function buildChoice(m, ch){
   if(!ch) return null;
-  if(ch.how==='mark'){ const f=MARK_FILLS.find(x=>x.id===ch.id); return m.mark&&f ? {g:f.grid, ms:[f], how:'mark'} : null; }
-  const mo=MOTIFS.find(x=>x.id===ch.id); if(!mo||m.mark) return null;
+  const mo=MOTIFS.find(x=>x.id===ch.id); if(!mo) return null;
   const want={single:'square',stacked:'square',facing:'square',tall:'tall'}[ch.how] || (m.kind==='L'?'large':'largetall');
   const ok={S:['single'],T:['tall','stacked'],W:['facing'],L:['large'],LT:['large']}[m.kind];
   if(!ok||!ok.includes(ch.how)||mo.size!==want) return null;
@@ -620,18 +604,16 @@ function assignMotifs(t, rng){
     let built = m.lock ? buildChoice(m, m.lock.choice) : null;
     if(!built){
       let ch;
-      if(m.mark){ const f=pickMotif(MARK_FILLS,used,nbIds,r2); ch={how:'mark',id:f.id}; m.markFull=r2()<.5; }
-      else if(m.kind==='S') ch={how:'single',id:pickMotif(L.sq,used,nbIds,r2).id};
+      if(m.kind==='S') ch={how:'single',id:pickMotif(L.sq,used,nbIds,r2).id};
       else if(m.kind==='L'||m.kind==='LT') ch={how:'large',id:pickMotif(m.kind==='L'?L.lg:L.lgT,used,nbIds,r2).id};
       else if(m.kind==='T'){
         const useTall = L.tl.length && (S.doubleMode==='tall' || (S.doubleMode==='mix' && r2()<.6) || !L.sqStack.length);
         ch = useTall ? {how:'tall',id:pickMotif(L.tl,used,nbIds,r2).id} : {how:'stacked',id:pickMotif(L.sqStack,used,nbIds,r2).id};
       } else ch={how:'facing',id:pickMotif(L.sqAll,used,nbIds,r2).id};
       built=buildChoice(m,ch);
-    } else if(m.mark) m.markFull=!!m.lock.markFull;
+    }
     const {g,ms,how}=built; used[ms[0].id]=(used[ms[0].id]||0)+1;
-    if(how==='mark'){ if(!(charLR(g)&&charTB(g))) console.warn('symmetry rule violated', ms[0].id); }
-    else if(m.kind!=='S'&&m.kind!=='L' ? !isSymFull(g) : !(charLR(g)||charTB(g))) console.warn('symmetry rule violated', ms[0].id);
+    if(m.kind!=='S'&&m.kind!=='L' ? !isSymFull(g) : !(charLR(g)||charTB(g))) console.warn('symmetry rule violated', ms[0].id);
     if(!fillsField(g)) console.warn('fill rule violated', ms[0].id);
     m.grid=g; m.motifs=ms; m.motifIds=ms.map(x=>x.id); m.how=how; m.choice={how,id:ms[0].id};
     finishGrid(m);
@@ -765,31 +747,13 @@ function colourwaysUnfiltered(keys){
   }
   return out;
 }
-/* PCF MARK: parsed once; part = which logo colour each shape carries; cover = share of the 193×193 box per part */
-const MARK=(()=>{
-  const parts=[]; const re=/<path fill="#([0-9a-f]{6})" d="([^"]+)"\/>/g; let x;
-  while((x=re.exec(MARK_PATHS))){ const h=x[1], r=parseInt(h.slice(0,2),16), g=parseInt(h.slice(2,4),16);
-    parts.push({d:x[2], part: r>200&&g<80 ? 'red' : g>100 ? 'green' : 'black'}); }
-  const cover={black:.12,green:.17,red:.09};
-  try{ const N=193, cv=document.createElement('canvas'); cv.width=cv.height=N; const cx=cv.getContext('2d',{willReadFrequently:true});
-    for(const k of ['black','green','red']){ cx.clearRect(0,0,N,N); parts.filter(p=>p.part===k).forEach(p=>cx.fill(new Path2D(p.d)));
-      const a=cx.getImageData(0,0,N,N).data; let n=0; for(let i=3;i<a.length;i+=4) n+=a[i]/255; cover[k]=n/(N*N); }
-  }catch(e){}
-  return {parts,cover};
-})();
-const MARK_SIDE = INNER/2;            // the mark spans half the 13-stitch field: 6.5 stitches
-const markIsFull=(m,cw)=> cw.bg==='white' && (S.mark.style==='full' || (S.mark.style==='auto' && m.markFull));
-// colour of each mark part: one thread colour (the module's main thread), or the logo's own three colours on a light ground
-function markColours(m,cw){ const full=markIsFull(m,cw); return {black:full?'black':cw.p, green:full?'green':cw.p, red:full?'red':cw.p}; }
 function moduleAreas(m, cw){
-  const cov=STITCHES[S.stitch].cover*(m.how==='mark'?.25:1);   // half-scale stitches cover a quarter of the area
+  const cov=STITCHES[S.stitch].cover;
   const total=m.w*m.h*UNIT*UNIT;
   const a={}; const add=(k,v)=>a[k]=(a[k]||0)+v;
   const neg = m.dense; // dense fields never carry accent colours: accents become negative space
   const st={p:m.cnt['1']*cov, s:neg?0:m.cnt['2']*cov, t:neg?0:m.cnt['3']*cov};
-  let mk=0;
-  if(m.how==='mark'){ const mc=markColours(m,cw), A=MARK_SIDE*MARK_SIDE; for(const k in mc){ const v=MARK.cover[k]*A; add(mc[k],v); mk+=v; } }
-  add(cw.bg, total-st.p-st.s-st.t-mk); add(cw.p,st.p); add(cw.s,st.s); add(cw.t,st.t);
+  add(cw.bg, total-st.p-st.s-st.t); add(cw.p,st.p); add(cw.s,st.s); add(cw.t,st.t);
   return a;
 }
 function assignColours(t, rng){
@@ -927,27 +891,19 @@ function buildSVG(t, forExport){
     const x0=m.c*UNIT*CELL, y0=m.r*UNIT*CELL, w=m.w*UNIT*CELL, h=m.h*UNIT*CELL;
     const mo=m.motifs[0];
     const label=`${String(i+1).padStart(2,'0')}-${m.border?'border-'+m.border+'-':''}${KIND_NAME[m.kind]}-${mo.id}`;
-    const meta=(m.how==='mark'?` data-mark="Palestine Cultural Festival" data-mark-colour="${markIsFull(m,m.cw)?'full':m.cw.p}"`:'')+` data-motif="${esc(mo.name)}"${mo.arabic?` data-arabic="${esc(mo.arabic)}"`:''} data-type="${esc(mo.type)}" data-region="${esc(mo.region)}"${mo.city?` data-city="${esc(mo.city)}"`:''}${mo.source?` data-source="${esc(mo.source)}"`:''}`;
+    const meta=` data-motif="${esc(mo.name)}"${mo.arabic?` data-arabic="${esc(mo.arabic)}"`:''} data-type="${esc(mo.type)}" data-region="${esc(mo.region)}"${mo.city?` data-city="${esc(mo.city)}"`:''}${mo.source?` data-source="${esc(mo.source)}"`:''}`;
     out.push(forExport?`<g id="${esc(label)}"${meta}>`:`<g id="${esc(label)}" class="mod" data-i="${i}">`);
     out.push(`<rect x="${x0}" y="${y0}" width="${w}" height="${h}" fill="${hexOf(m.cw.bg)}"/>`);
     const paths={'1':[],'2':[],'3':[]};
     // stitch field begins one cell in from the module edge
     const neg = S.accents && m.dense;
-    const half = m.how==='mark';          // the mark module is stitched on a half-scale grid
-    const ox = half?0:x0+CELL, oy = half?0:y0+CELL;
+    const ox = x0+CELL, oy = y0+CELL;
     m.grid.forEach((row,ry)=>{for(let cx=0;cx<row.length;cx++){const ch=row[cx]; if(ch==='.'||!(ch in paths)) continue;
       if(neg && ch!=='1') continue;
       const slot=S.accents?ch:'1';
       paths[slot].push(st.d(ox+cx*CELL, oy+ry*CELL));}});
     const col={'1':m.cw.p,'2':m.cw.s,'3':m.cw.t};
-    if(half) out.push(`<g transform="translate(${x0+CELL} ${y0+CELL}) scale(.5)">`);
     for(const k of ['1','2','3']) if(paths[k].length) out.push(`<path fill="${hexOf(col[k])}" d="${paths[k].join('')}"/>`);
-    if(half){
-      out.push('</g>');
-      // the PCF mark at half the field, centred: field starts 1 cell in; the 14-half-stitch hole starts 6 half-stitches in
-      const side=MARK_SIDE*CELL, mx=x0+CELL+(INNER*CELL-side)/2, my=y0+CELL+(INNER*CELL-side)/2, mc=markColours(m,m.cw);
-      out.push(`<g transform="translate(${f2(mx)} ${f2(my)}) scale(${f2(side/193*1000)/1000})">`+MARK.parts.map(p=>`<path fill="${hexOf(mc[p.part])}" d="${p.d}"/>`).join('')+'</g>');
-    }
     if(!forExport && m.lock){ // preview only: lock badge in the top-right corner
       const bx=x0+w-CELL*2.3, by=y0+CELL*.3, z=CELL*2;
       out.push(`<g class="lockbadge" transform="translate(${bx} ${by}) scale(${z/24})"><rect width="24" height="24" rx="6" fill="#fff" stroke="#231f20" stroke-width="1.5"/><path d="M8 11V8.5a4 4 0 0 1 8 0V11" fill="none" stroke="#231f20" stroke-width="2"/><rect x="6.5" y="11" width="11" height="8" rx="1.5" fill="#231f20"/></g>`);
@@ -962,25 +918,15 @@ function buildSVG(t, forExport){
 /* ============================================================
    GENERATE + UI
    ============================================================ */
-// modules placed before tiling: locked modules (kept as they are) and the PCF mark module
+// modules placed before tiling: locked modules, kept as they are
 function fixedModules(){
   const occ=Array.from({length:S.rows},()=>Array(S.cols).fill(false));
   const fits=f=>f.c>=0&&f.r>=0&&f.c+f.w<=S.cols&&f.r+f.h<=S.rows&&(()=>{for(let y=f.r;y<f.r+f.h;y++)for(let x=f.c;x<f.c+f.w;x++)if(occ[y][x])return false;return true})();
   const take=f=>{for(let y=f.r;y<f.r+f.h;y++)for(let x=f.c;x<f.c+f.w;x++)occ[y][x]=true};
   const out=[];
   for(const [k,l] of Object.entries(S.locks)){
-    if(l.mark && !S.mark.on) continue;
     if(!fits(l)){ delete S.locks[k]; continue; }   // composition shrank or the slot is taken: the lock lapses
-    take(l); out.push({c:l.c,r:l.r,w:l.w,h:l.h,kind:l.kind,mark:!!l.mark,lock:l});
-  }
-  if(S.mark.on && !out.some(f=>f.mark)){
-    let pos=null;
-    if(S.mark.pos){ const [c,r]=S.mark.pos.split(',').map(Number); if(fits({c,r,w:1,h:1})) pos={c,r}; }
-    if(!pos){ // seeded position among free cells
-      const free=[]; for(let r=0;r<S.rows;r++) for(let c=0;c<S.cols;c++) if(!occ[r][c]) free.push({c,r});
-      if(free.length){ const rr=rngFrom(S.seed+'|mark|'+S.cols+'x'+S.rows); pos=free[rr()*free.length|0]; }
-    }
-    if(pos){ take({...pos,w:1,h:1}); out.push({...pos,w:1,h:1,kind:'S',mark:true}); }
+    take(l); out.push({c:l.c,r:l.r,w:l.w,h:l.h,kind:l.kind,lock:l});
   }
   return out;
 }
@@ -1010,7 +956,7 @@ function updateStatus(t){
     `<span><b>${fm.length}</b> modules · ${sq} square · ${tall} tall · ${wide} wide${big?` · ${big} large`:''}</span>`+
     (bmods.length?`<span><b>${bmods.length}</b> border · ${esc(t.borderBand.name)} (${esc(t.borderBand.area)}) · corners: ${esc(t.cornerMotif.name)}</span>`:'')+
     `<span><b>${t.mods.reduce((a,m)=>a+m.grid.reduce((b,r)=>b+[...r].filter(c=>c!=='.').length,0),0).toLocaleString()}</b> stitches</span>`+
-    `<span>Min. contrast <b>${Math.min(...t.mods.flatMap(m=>{const c=[m.cw.p]; if(S.accents){if(m.cnt['2'])c.push(m.cw.s); if(m.cnt['3'])c.push(m.cw.t)} if(m.how==='mark') c.push(...Object.values(markColours(m,m.cw))); return c.map(x=>contrastRatio(hexOf(m.cw.bg),hexOf(x)))})).toFixed(2)}:1</b></span>`+
+    `<span>Min. contrast <b>${Math.min(...t.mods.flatMap(m=>{const c=[m.cw.p]; if(S.accents){if(m.cnt['2'])c.push(m.cw.s); if(m.cnt['3'])c.push(m.cw.t)} return c.map(x=>contrastRatio(hexOf(m.cw.bg),hexOf(x)))})).toFixed(2)}:1</b></span>`+
     `<span style="display:flex;gap:10px;align-items:center">Colour balance <span class="balance">${bar}</span><span class="legend">${leg}</span></span>`;
 }
 function updateSizeInfo(){
@@ -1052,7 +998,7 @@ function shuffleModule(m){
 function recolourModule(m){ const ov=S.overrides[okey(m)]||(S.overrides[okey(m)]={}); ov.colourSalt=(ov.colourSalt||0)+1; generate(); }
 function lockModule(m, choice){
   const [c,r]=m.key.split(',').map(Number);
-  S.locks[m.key]={c,r,w:m.w,h:m.h,kind:m.kind,mark:!!m.mark,choice:choice||m.choice,markFull:!!m.markFull};
+  S.locks[m.key]={c,r,w:m.w,h:m.h,kind:m.kind,choice:choice||m.choice};
 }
 function updateLockInfo(){
   const n=LAST?LAST.mods.filter(m=>m.lock).length:0;
@@ -1065,14 +1011,12 @@ function findModule(ref){ // ref = field key, or 'b:side:c,r' for a border modul
   return LAST.mods.find(m=>!m.border&&m.key===ref)||null;
 }
 // small preview of a candidate pattern in this module's current colours
-function thumbSVG(g, cw, how){
-  const mark=how==='mark', pad=mark?2:1, W=g[0].length+pad*2, H=g.length+pad*2, col={'1':cw.p,'2':cw.s,'3':cw.t};
+function thumbSVG(g, cw){
+  const pad=1, W=g[0].length+pad*2, H=g.length+pad*2, col={'1':cw.p,'2':cw.s,'3':cw.t};
   let r=`<svg viewBox="0 0 ${W} ${H}" aria-hidden="true"><rect width="${W}" height="${H}" fill="${hexOf(cw.bg)}"/>`;
   const by={'1':'','2':'','3':''};
   g.forEach((row,y)=>[...row].forEach((ch,x)=>{ if(ch in by) by[S.accents?ch:'1']+=`M${x+pad} ${y+pad}h.9v.9h-.9z`; }));
   for(const k in by) if(by[k]) r+=`<path fill="${hexOf(col[k])}" d="${by[k]}"/>`;
-  if(mark){ const side=MARK_SIDE*2, o=pad+(26-side)/2, mc={black:cw.p,green:cw.p,red:cw.p};
-    r+=`<g transform="translate(${o} ${o}) scale(${side/193})">`+MARK.parts.map(p=>`<path fill="${hexOf(mc[p.part])}" d="${p.d}"/>`).join('')+'</g>'; }
   return r+'</svg>';
 }
 function closeMenu(){ const mm=document.getElementById('modmenu'); mm.hidden=true; mm.innerHTML=''; }
@@ -1080,8 +1024,8 @@ function openMenu(m, x, y){
   const mm=document.getElementById('modmenu');
   const ref=m.border?`b:${m.border}:${m.c},${m.r}`:m.key;
   mm.dataset.ref=ref; if(x!=null){mm.dataset.x=x;mm.dataset.y=y}
-  const mo=m.motifs[0], dims=`${m.how==='mark'?'13 × 13 · half-scale grid':`${13*m.w+2*(m.w-1)} × ${13*m.h+2*(m.h-1)}`}`;
-  const title = m.how==='mark' ? `PCF mark · ${mo.name} frame` : m.border ? (m.border==='corner'?`Border corner · ${mo.name}`:`Border · ${mo.name}`) : mo.name;
+  const mo=m.motifs[0], dims=`${13*m.w+2*(m.w-1)} × ${13*m.h+2*(m.h-1)}`;
+  const title = m.border ? (m.border==='corner'?`Border corner · ${mo.name}`:`Border · ${mo.name}`) : mo.name;
   let h=`<div class="mh"><b>${esc(title)}</b><small>${m.border?'border':KIND_NAME[m.kind]} · ${dims}${mo.area||mo.region?' · '+esc(mo.area||mo.region):''}</small></div><div class="acts">`;
   const act=(id,label,on)=>h+=`<button data-act="${id}"${on?' class="on"':''}>${label}</button>`;
   if(m.border){
@@ -1090,7 +1034,6 @@ function openMenu(m, x, y){
   } else {
     act('shuffle','⟳ Shuffle pattern'); act('lock',m.lock?'🔒 Locked · unlock':'🔓 Lock pattern',!!m.lock);
     act('recolour','◐ Another colourway');
-    if(S.mark.on && m.kind==='S' && !m.mark) act('markhere','✦ Place PCF mark here');
   }
   const nl=LAST.mods.filter(x=>x.lock).length; if(nl) act('unlockall',`Unlock all (${nl})`);
   h+='</div>';
@@ -1099,14 +1042,14 @@ function openMenu(m, x, y){
   if(m.border==='corner'){ opts=MOTIFS.filter(x=>x.c4&&!S.disabled.has(x.id)).map(x=>({how:'corner',id:x.id})); cur={how:'corner',id:mo.id}; label='Corner motifs (four-way symmetric)'; }
   else if(m.border){ opts=BORDERS.map(b=>({how:'band',id:b.id})); cur={how:'band',id:LAST.borderBand.id}; label='Border bands'; }
   else { opts=optionsFor(m); cur=m.choice; if(!opts.some(o=>sameChoice(o,cur))) opts.unshift(cur);
-    label = m.how==='mark' ? 'Frames around the mark' : `Patterns for this ${KIND_NAME[m.kind]} module`; }
+    label = `Patterns for this ${KIND_NAME[m.kind]} module`; }
   h+=`<h5>${label} · ${opts.length}</h5><div class="opts">`;
   opts.forEach((o,k)=>{
-    let g, nm, how=o.how;
+    let g, nm;
     if(o.how==='corner'){ const x=MOTIFS.find(z=>z.id===o.id); g=x.grid; nm=x.name; }
     else if(o.how==='band'){ const b=BORDERS.find(z=>z.id===o.id); const hz=m.border==='top'||m.border==='bottom'; g=b.strips[(hz?'h':'v')+((hz?m.w:m.h)===2?TALL_INNER:INNER)]; nm=b.name; }
     else { const bt=buildChoice(m,o); if(!bt) return; g=bt.g; nm=bt.ms[0].name+(o.how==='stacked'?' (stacked)':''); }
-    h+=`<button data-opt="${k}" title="${esc(nm)}"${sameChoice(o,cur)?' aria-current="true"':''}>${thumbSVG(g,m.cw,how)}<span>${esc(nm)}</span></button>`;
+    h+=`<button data-opt="${k}" title="${esc(nm)}"${sameChoice(o,cur)?' aria-current="true"':''}>${thumbSVG(g,m.cw)}<span>${esc(nm)}</span></button>`;
   });
   h+='</div>';
   mm.innerHTML=h; mm.hidden=false;
@@ -1128,10 +1071,9 @@ function openMenu(m, x, y){
         if(pinned){S.border.pattern='auto';S.border.corner='auto'} else {S.border.pattern=LAST.borderBand.id;S.border.corner=LAST.cornerMotif.id}
         borderPattern.value=S.border.pattern; cornerMotif.value=S.border.corner; generate(); }
       else if(a==='recolour') recolourModule(mod);
-      else if(a==='markhere'){ for(const k in S.locks) if(S.locks[k].mark) delete S.locks[k]; delete S.locks[mod.key]; S.mark.pos=mod.key; generate(); }
       else if(a==='unlockall'){ S.locks={}; generate(); }
     }
-    const again=findModule(mm.dataset.ref) || (S.mark.pos&&findModule(S.mark.pos));
+    const again=findModule(mm.dataset.ref);
     if(again) openMenu(again); else closeMenu();
   };
 }
@@ -1152,8 +1094,6 @@ canvasEl.addEventListener('pointermove',e=>{if(press&&!press.fired&&Math.hypot(e
 document.addEventListener('pointerdown',e=>{ const mm=document.getElementById('modmenu'); if(!mm.hidden && !mm.contains(e.target) && !e.target.closest('#canvas g.mod')) closeMenu(); });
 document.addEventListener('keydown',e=>{ if(e.key==='Escape') closeMenu(); });
 addEventListener('resize',()=>{ if(innerWidth>820) closeMenu(); });
-markOn.addEventListener('change',()=>{S.mark.on=markOn.checked; markOpts.style.display=S.mark.on?'':'none'; regen()});
-markStyle.addEventListener('change',()=>{S.mark.style=markStyle.value; generate()});
 filterToggle.addEventListener('click',()=>{const side=filterToggle.parentElement;side.classList.toggle('open');filterToggle.setAttribute('aria-expanded',side.classList.contains('open'))});
 let DL=null; // platform download capability when hosted as an artifact
 try{ if(window.claude && claude.use) claude.use('downloads').then(d=>{DL=d}).catch(()=>{}); }catch(e){}

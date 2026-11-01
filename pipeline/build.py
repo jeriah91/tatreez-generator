@@ -18,10 +18,6 @@ for m in ms:
     if m['size'] in('tall','largetall') and not shape_sym: print('ASYM-TALL rejected',m['id']); continue
     if m['id'] in {x['id'] for x in ok}: print('DUP',m['id']); continue
     ok.append(m)
-# PCF mark module fills: half-scale rings from real disc charts (pipeline/markfill.py)
-fills=json.load(open(DATA('markfills.json')))['fills'] if os.path.exists(DATA('markfills.json')) else []
-bad=[f['id'] for f in fills if not traced(f) or len(f['grid'])!=26 or any(len(r)!=26 for r in f['grid'])]
-if bad: sys.exit('UNTRACED or malformed mark fills: '+', '.join(bad))
 borders=json.load(open(DATA('borders.json')))
 bad=[b['id'] for b in borders if not traced(b)]
 if bad: sys.exit('UNTRACED border bands: '+', '.join(bad))
@@ -34,8 +30,6 @@ cell=lambda v:str(v or '—').replace('|','/')
 for m in ok: L.append(f"| `{m['id']}` | {cell(m['name'])} {cell(m.get('arabic'))} | {cell(m.get('area'))} · {cell(m.get('city'))} | {m['size']} | {cell(m['source'])} | {cell(m.get('derivation') or m.get('note'))} |")
 L+=['',f'## Border bands ({len(borders)})','','| id | name | area · city | source | note |','|---|---|---|---|---|']
 for b in borders: L.append(f"| `{b['id']}` | {cell(b['name'])} | {cell(b.get('area'))} · {cell(b.get('city'))} | {cell(b['source'])} | {cell(b.get('note'))} |")
-L+=['',f'## PCF mark module fills ({len(fills)})','','The PCF mark module is stitched on a half-scale grid (26×26 half-stitches in the 13×13 field). The Palestine Cultural Festival mark sits in the centre at half the field; the ring around it is a real chart with its centre medallion cleared for the mark.','','| id | name | area · city | source | derivation |','|---|---|---|---|---|']
-for f in fills: L.append(f"| `{f['id']}` | {cell(f['name'])} {cell(f.get('arabic'))} | {cell(f.get('area'))} · {cell(f.get('city'))} | {cell(f['source'])} | {cell(f['derivation'])} |")
 L+=['',f'## Excluded — not yet traced ({len(untraced)})','','These charts are kept in `data/` but are not used until a source in Tatreez.app or Kawar & Nasir is identified and recorded.','']
 for m in untraced: L.append(f"- `{m['id']}` — {m['name']}: {cell(m.get('note'))}")
 open(os.path.join(ROOT,'PROVENANCE.md'),'w').write('\n'.join(L)+'\n')
@@ -45,8 +39,6 @@ spec=importlib.util.spec_from_file_location('inv',os.path.join(here,'inventory_s
 s=open(os.path.join(ROOT,'src','app.html')).read().replace('__MOTIFS__',json.dumps(ok,ensure_ascii=False)).replace('__STITCH_REST__',json.dumps(rest)).replace('__INVENTORY__',json.dumps(inv.INV,ensure_ascii=False)).replace('__KAWAR_INV__',json.dumps(inv.KAWAR_INV,ensure_ascii=False)).replace('__BORDERS__',open(DATA('borders.json')).read())
 import urllib.parse
 LM=open(DATA(os.path.join('brand','logo-mark.svg'))).read(); LF=open(DATA(os.path.join('brand','logo-full-black.svg'))).read()
-MARK_INNER=LM[LM.index('>')+1:LM.rindex('</svg>')]
-s=s.replace('__MARKFILLS__',json.dumps(fills,ensure_ascii=False)).replace('__MARK_PATHS__',json.dumps(MARK_INNER))
 s=s.replace('__LOGO_MARK__',LM).replace('__LOGO_FULL__',LF).replace('__FAVICON__','data:image/svg+xml,'+urllib.parse.quote(LM))
 (os.makedirs(os.path.join(ROOT,'dist'),exist_ok=True) or open(os.path.join(ROOT,'dist','index.html'),'w')).write(s)
-print(len(ok),'motifs;',sum(m['size']=='tall' for m in ok),'tall;',sum(m['size'] in('large','largetall') for m in ok),'large;',len(untraced),'untraced excluded;',len(fills),'mark fills')
+print(len(ok),'motifs;',sum(m['size']=='tall' for m in ok),'tall;',sum(m['size'] in('large','largetall') for m in ok),'large;',len(untraced),'untraced excluded')
